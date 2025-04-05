@@ -1,17 +1,10 @@
 {
-    "rewrites": [
-      { "source": "/(.*)", "destination": "/" }
+    "version": 2,
+    "builds": [
+      { "src": "package.json", "use": "@vercel/static-build" }
     ],
-    "headers": [
-      {
-        "source": "/(.*)",
-        "headers": [
-          {
-            "key": "Content-Security-Policy",
-            "value": "default-src 'self'; script-src 'self'; object-src 'none'; style-src 'self' 'unsafe-inline'; font-src 'self';"
-          }
-        ]
-      }
+    "routes": [
+      { "src": "/(.*)", "dest": "/" }
     ]
   }
   
