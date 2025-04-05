@@ -8,6 +8,7 @@ const SavedAnalyses = () => {
     fetch("https://rose-renters-backend.onrender.com/api/analysis/all")
       .then((res) => res.json())
       .then((data) => {
+        console.log("Fetched data:", data); // ✅ Debug log
         setAnalyses(data.reverse());
         setLoading(false);
       })
