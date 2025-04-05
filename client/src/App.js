@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import AnalysisPage from "./AnalysisPage";
+import SavedAnalyses from "./SavedAnalyses"; // ✅ Added line
 
 function App() {
   const [form, setForm] = useState({
@@ -138,7 +139,7 @@ function App() {
                   style={{ marginTop: "1rem", padding: "0.5rem 1rem" }}
                   onClick={async () => {
                     try {
-                      const response = await fetch("https://rose-renters-backend.onrender.com/api/save", {
+                      const response = await fetch("https://rose-renters-backend.onrender.com/api/analysis/save", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ ...form, results }),
@@ -160,6 +161,7 @@ function App() {
         }
       />
       <Route path="/analysis/:id" element={<AnalysisPage />} />
+      <Route path="/saved" element={<SavedAnalyses />} /> {/* ✅ Added route */}
     </Routes>
   );
 }
