@@ -40,7 +40,7 @@ function App() {
 
     const pp = parseFloat(purchasePrice || 0);
     const dpPercent = parseFloat(downPayment || 0) / 100;
-    const loanAmt = pp - (pp * dpPercent);
+    const loanAmt = pp - pp * dpPercent;
     const monthlyInterest = (parseFloat(interestRate || 0) / 100) / 12;
     const numberOfPayments = parseFloat(loanTerm || 0) * 12;
 
@@ -95,109 +95,50 @@ function App() {
       <Route
         path="/"
         element={
-          <div style={{ maxWidth: 700, margin: "auto", padding: "2rem" }}>
-            <div
-              style={{
-                background: "#ffffff",
-                padding: "2rem",
-                borderRadius: "12px",
-                boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
-              }}
-            >
-              <h1 style={{ textAlign: "center", marginBottom: "2rem", fontSize: "1.8rem" }}>
-                Rose Renters Calc
-              </h1>
-
-              <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "1rem" }}>
-                {inputFields.map((field) => (
-                  <div key={field.name}>
-                    <label>{field.label}</label>
-                    <input
-                      type="number"
-                      name={field.name}
-                      value={form[field.name]}
-                      onChange={handleChange}
-                      style={{ width: "100%", padding: "0.75rem" }}
-                    />
-                  </div>
-                ))}
+          <div style={{ maxWidth: 600, margin: "auto", padding: "2rem" }}>
+            <h1>Rose Renters Calc</h1>
+            {inputFields.map((field) => (
+              <div key={field.name}>
+                <label>{field.label}</label>
+                <input
+                  type="number"
+                  name={field.name}
+                  value={form[field.name]}
+                  onChange={handleChange}
+                  style={{ width: "100%", marginBottom: "1rem", padding: "0.5rem" }}
+                />
               </div>
+            ))}
+            <button
+              onClick={calculate}
+              style={{ padding: "0.75rem", marginTop: "1rem" }}
+            >
+              Calculate
+            </button>
 
-              <button
-                onClick={calculate}
-                style={{
-                  padding: "0.75rem",
-                  marginTop: "2rem",
-                  width: "100%",
-                  fontSize: "1rem",
-                }}
-              >
-                Calculate
-              </button>
+            {results && (
+              <>
+                <div
+                  style={{
+                    marginTop: "2rem",
+                    background: "#f9f9f9",
+                    padding: "1rem",
+                    borderRadius: "8px",
+                  }}
+                >
+                  <h2>Results:</h2>
+                  <p><strong>Monthly Mortgage:</strong> ${results.mortgagePayment}</p>
+                  <p><strong>Total Monthly Expenses:</strong> ${results.totalExpenses}</p>
+                  <p><strong>Monthly Cash Flow:</strong> ${results.monthlyCashFlow}</p>
+                  <p><strong>Annual Cash Flow:</strong> ${results.annualCashFlow}</p>
+                  <p><strong>Cash-on-Cash ROI:</strong> {results.roi}%</p>
+                </div>
 
-              {results && (
-                <>
-                  <div
-                    style={{
-                      marginTop: "2rem",
-                      background: "#ffffff",
-                      padding: "1.5rem",
-                      borderRadius: "10px",
-                      border: "1px solid #e5e7eb",
-                      boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
-                    }}
-                  >
-                    <h2
-                      style={{
-                        fontSize: "1.4rem",
-                        marginBottom: "1rem",
-                        borderBottom: "1px solid #eee",
-                        paddingBottom: "0.5rem",
-                      }}
-                    >
-                      📊 Results
-                    </h2>
-
-                    <div
-                      style={{
-                        display: "grid",
-                        gridTemplateColumns: "1fr 1fr",
-                        rowGap: "1rem",
-                        columnGap: "1rem",
-                      }}
-                    >
-                      <div>
-                        <strong>Monthly Mortgage:</strong>
-                        <br />
-                        ${results.mortgagePayment}
-                      </div>
-                      <div>
-                        <strong>Total Monthly Expenses:</strong>
-                        <br />
-                        ${results.totalExpenses}
-                      </div>
-                      <div>
-                        <strong>Monthly Cash Flow:</strong>
-                        <br />
-                        ${results.monthlyCashFlow}
-                      </div>
-                      <div>
-                        <strong>Annual Cash Flow:</strong>
-                        <br />
-                        ${results.annualCashFlow}
-                      </div>
-                      <div style={{ gridColumn: "span 2" }}>
-                        <strong>Cash-on-Cash ROI:</strong>
-                        <br />
-                        <span style={{ fontSize: "1.25rem", color: "#10b981" }}>{results.roi}%</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <button
-                    style={{ marginTop: "1rem", padding: "0.5rem 1rem", width: "100%" }}
-                    onClick={async () => {
-                      const response = await fetch("http://localhost:4000/api/save", {
+                <button
+                  style={{ marginTop: "1rem", padding: "0.5rem 1rem" }}
+                  onClick={async () => {
+                    try {
+                      const response = await fetch("https://rose-renters-backend.onrender.com/api/save", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ ...form, results }),
@@ -206,13 +147,15 @@ function App() {
                       const data = await response.json();
                       const shareableLink = `${window.location.origin}/analysis/${data.id}`;
                       alert("Saved! Shareable link:\n" + shareableLink);
-                    }}
-                  >
-                    Save Analysis
-                  </button>
-                </>
-              )}
-            </div>
+                    } catch (err) {
+                      alert("Error saving analysis. Please try again.");
+                    }
+                  }}
+                >
+                  Save Analysis
+                </button>
+              </>
+            )}
           </div>
         }
       />
