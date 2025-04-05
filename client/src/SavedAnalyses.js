@@ -1,47 +1,54 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 
-function SavedAnalyses() {
+const SavedAnalyses = () => {
   const [analyses, setAnalyses] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch("https://rose-renters-backend.onrender.com/api/analysis/all")
       .then((res) => res.json())
-      .then((data) => setAnalyses(data))
-      .catch((err) => console.error("Failed to load analyses", err));
+      .then((data) => {
+        setAnalyses(data.reverse());
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch analyses", err);
+        setLoading(false);
+      });
   }, []);
 
+  if (loading) return <div style={{ padding: "2rem" }}>Loading...</div>;
+
   return (
-    <div style={{ maxWidth: 800, margin: "auto", padding: "2rem" }}>
+    <div style={{ maxWidth: 700, margin: "auto", padding: "2rem" }}>
       <h1>Saved Analyses</h1>
-      <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "1rem" }}>
-        <thead>
-          <tr>
-            <th style={{ textAlign: "left", padding: "0.5rem" }}>Date</th>
-            <th style={{ textAlign: "left", padding: "0.5rem" }}>Monthly Cash Flow</th>
-            <th style={{ textAlign: "left", padding: "0.5rem" }}>Annual Cash Flow</th>
-            <th style={{ textAlign: "left", padding: "0.5rem" }}>ROI</th>
-            <th style={{ textAlign: "left", padding: "0.5rem" }}>Link</th>
-          </tr>
-        </thead>
-        <tbody>
-          {analyses.map((analysis) => (
-            <tr key={analysis._id}>
-              <td style={{ padding: "0.5rem" }}>
-                {new Date(analysis.createdAt).toLocaleDateString()}
-              </td>
-              <td style={{ padding: "0.5rem" }}>${analysis.results?.monthlyCashFlow}</td>
-              <td style={{ padding: "0.5rem" }}>${analysis.results?.annualCashFlow}</td>
-              <td style={{ padding: "0.5rem" }}>{analysis.results?.roi}%</td>
-              <td style={{ padding: "0.5rem" }}>
-                <Link to={`/analysis/${analysis._id}`}>View</Link>
-              </td>
-            </tr>
+      {analyses.length === 0 ? (
+        <p>No saved analyses yet.</p>
+      ) : (
+        <ul style={{ paddingLeft: 0 }}>
+          {analyses.map((item) => (
+            <li
+              key={item._id}
+              style={{
+                listStyle: "none",
+                marginBottom: "1rem",
+                padding: "1rem",
+                border: "1px solid #ccc",
+                borderRadius: "8px",
+              }}
+            >
+              <p><strong>Rent:</strong> ${item.monthlyRent}</p>
+              <p><strong>Cash Flow:</strong> ${item.results?.monthlyCashFlow}</p>
+              <p><strong>ROI:</strong> {item.results?.roi}%</p>
+              <a href={`/analysis/${item._id}`} style={{ color: "blue" }}>
+                View Full Analysis
+              </a>
+            </li>
           ))}
-        </tbody>
-      </table>
+        </ul>
+      )}
     </div>
   );
-}
+};
 
 export default SavedAnalyses;
