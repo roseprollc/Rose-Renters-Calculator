@@ -6,7 +6,7 @@ function AnalysisPage() {
   const [data, setData] = useState(null);
 
   useEffect(() => {
-    fetch(`http://localhost:4000/api/${id}`)
+    fetch(`https://rose-renters-backend.onrender.com/api/analysis/${id}`)
       .then((res) => res.json())
       .then(setData)
       .catch((err) => console.error("Error loading analysis:", err));
