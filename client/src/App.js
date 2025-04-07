@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import AnalysisPage from "./AnalysisPage";
 import SavedAnalyses from "./SavedAnalyses"; // ✅ Included route page
+import ResultsChart from "./components/ResultsChart"; // ✅ NEW chart component
 
 function App() {
   const [form, setForm] = useState({
@@ -133,6 +134,8 @@ function App() {
                   <p><strong>Monthly Cash Flow:</strong> ${results.monthlyCashFlow}</p>
                   <p><strong>Annual Cash Flow:</strong> ${results.annualCashFlow}</p>
                   <p><strong>Cash-on-Cash ROI:</strong> {results.roi}%</p>
+
+                  <ResultsChart results={results} /> {/* ✅ Chart displayed here */}
                 </div>
 
                 <button
@@ -161,7 +164,7 @@ function App() {
         }
       />
       <Route path="/analysis/:id" element={<AnalysisPage />} />
-      <Route path="/saved" element={<SavedAnalyses />} /> {/* ✅ Added route */}
+      <Route path="/saved" element={<SavedAnalyses />} />
     </Routes>
   );
 }
