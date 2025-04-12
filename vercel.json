@@ -11,13 +11,7 @@
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "/index.html"
-    }
-  ],
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "dest": "client/build/index.html"
     }
   ]
 }
