@@ -3,30 +3,29 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 require("dotenv").config();
 
-// ✅ Make sure this path matches the lowercase folder name
+// ✅ Routes
 const authRoutes = require("./routes/auth");
+const analysisRoutes = require("./routes/analysis"); // ✅ Add this line
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
+// ✅ Middleware
 app.use(cors());
 app.use(express.json());
 
-// Routes
+// ✅ Register Routes
 app.use("/api/auth", authRoutes);
+app.use("/api/analysis", analysisRoutes); // ✅ Use analysis routes
 
-// Health check route
+// ✅ Health check
 app.get("/", (req, res) => {
   res.send("🌹 RoseIntel Backend is Running");
 });
 
-// MongoDB + Server Boot
+// ✅ MongoDB + Server Boot
 mongoose
-  .connect(process.env.MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect(process.env.MONGO_URI)
   .then(() => {
     console.log("✅ MongoDB connected");
     app.listen(PORT, () => {

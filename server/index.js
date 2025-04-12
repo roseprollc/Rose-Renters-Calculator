@@ -9,13 +9,23 @@ app.use(express.json());
 
 const PORT = process.env.PORT || 4000;
 
-// ✅ Add this route controller for all analysis routes
+// ✅ Base route for testing
+app.get("/", (req, res) => {
+  res.send("🚀 RoseIntel backend is live!");
+});
+
+// ✅ Routes
 const analysisRoutes = require("./routes/analysis");
 app.use("/api/analysis", analysisRoutes);
 
-// 🔌 Connect to MongoDB and start the server
+// 🔌 Connect to MongoDB
+const mongoURI = process.env.MONGO_URI;
+if (!mongoURI) {
+  console.warn("⚠️ No MONGO_URI environment variable found!");
+}
+
 mongoose
-  .connect(process.env.MONGO_URI, {
+  .connect(mongoURI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })

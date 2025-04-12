@@ -17,6 +17,34 @@ const authMiddleware = (req, res, next) => {
   }
 };
 
+// ✅ TEMP ROUTE — Save without auth for testing purposes only
+router.post("/test-save", async (req, res) => {
+  console.log("📥 Received POST to /api/analysis/test-save");
+  try {
+    console.log("📦 Incoming Body:", req.body);
+    const analysis = new Analysis(req.body);
+    const saved = await analysis.save();
+    console.log("✅ Saved test analysis:", saved._id);
+    res.status(201).json({ id: saved._id });
+  } catch (err) {
+    console.error("❌ Test save failed:", err);
+    res.status(500).json({ error: "Test save failed" });
+  }
+});
+
+// ✅ TEMP ROUTE — Get all saved analyses (no auth)
+router.get("/test-all", async (req, res) => {
+  console.log("📤 GET request to /api/analysis/test-all");
+  try {
+    const analyses = await Analysis.find().sort({ createdAt: -1 });
+    console.log(`📦 Retrieved ${analyses.length} test analyses`);
+    res.json(analyses);
+  } catch (err) {
+    console.error("❌ Failed to fetch test analyses:", err);
+    res.status(500).json({ error: "Failed to fetch analyses" });
+  }
+});
+
 // Save a new analysis (requires auth)
 router.post("/save", authMiddleware, async (req, res) => {
   try {
