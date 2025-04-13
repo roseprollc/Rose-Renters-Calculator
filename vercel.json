@@ -7,5 +7,11 @@
         "distDir": "client/build"
       }
     }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "client/build/index.html"
+    }
   ]
 }
