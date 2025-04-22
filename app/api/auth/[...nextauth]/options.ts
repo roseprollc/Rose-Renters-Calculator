@@ -1,11 +1,10 @@
 import { NextAuthOptions } from "next-auth"
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
-import CredentialsProvider from "next-auth/providers/credentials"
 import GoogleProvider from "next-auth/providers/google"
+import CredentialsProvider from "next-auth/providers/credentials"
 import { prisma } from "@/lib/prisma"
-import bcrypt from "bcryptjs"
-import type { User } from "next-auth"
-import type { SubscriptionTier } from "@prisma/client"
+import bcrypt from "bcrypt"
+import { SubscriptionTier } from "@prisma/client"
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -18,46 +17,24 @@ export const authOptions: NextAuthOptions = {
       name: "credentials",
       credentials: {
         email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" },
-        mode: { label: "Mode", type: "text" }, // "login" or "signup"
+        password: { label: "Password", type: "password" }
       },
-      async authorize(credentials): Promise<User | null> {
+      async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
           throw new Error("Missing credentials")
         }
 
         const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
+          where: { email: credentials.email }
         })
 
-        if (credentials.mode === "signup") {
-          if (user) {
-            throw new Error("User already exists")
-          }
-
-          const hashedPassword = await bcrypt.hash(credentials.password, 10)
-          const newUser = await prisma.user.create({
-            data: {
-              email: credentials.email,
-              password: hashedPassword,
-              subscriptionTier: "free" as SubscriptionTier,
-            },
-          })
-
-          return {
-            id: newUser.id,
-            email: newUser.email,
-            name: newUser.name,
-            subscriptionTier: newUser.subscriptionTier,
-          }
-        }
-
-        if (!user) {
+        if (!user || !user.password) {
           throw new Error("Invalid credentials")
         }
 
-        const isValid = await bcrypt.compare(credentials.password, user.password || '')
-        if (!isValid) {
+        const isPasswordValid = await bcrypt.compare(credentials.password, user.password)
+
+        if (!isPasswordValid) {
           throw new Error("Invalid credentials")
         }
 
@@ -65,31 +42,36 @@ export const authOptions: NextAuthOptions = {
           id: user.id,
           email: user.email,
           name: user.name,
-          subscriptionTier: user.subscriptionTier,
+          subscriptionTier: user.subscriptionTier
         }
-      },
-    }),
+      }
+    })
   ],
   session: {
-    strategy: "jwt",
+    strategy: "jwt"
   },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id
+        token.email = user.email
+        token.name = user.name
         token.subscriptionTier = user.subscriptionTier
       }
       return token
     },
     async session({ session, token }) {
-      if (session.user && token) {
+      if (session.user) {
         session.user.id = token.id as string
-        session.user.subscriptionTier = token.subscriptionTier as SubscriptionTier
+        session.user.email = token.email
+        session.user.name = token.name
+        session.user.subscriptionTier = token.subscriptionTier
       }
       return session
-    },
+    }
   },
   pages: {
-    signIn: "/login",
-  },
+    signIn: "/auth/signin",
+    error: "/auth/error"
+  }
 } 
