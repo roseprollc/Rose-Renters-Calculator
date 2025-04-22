@@ -10,44 +10,18 @@ import {
   Download,
   ChevronDown
 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { Button } from '@/app/components/ui/button'
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/app/components/ui/card'
+import { Badge } from '@/app/components/ui/badge'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/app/components/ui/dropdown-menu'
 import { toast } from 'sonner'
 import { Checkbox } from '@/app/components/ui/checkbox'
 import { ExportMenu } from '@/app/components/ExportMenu'
 import { formatCurrency, formatPercentage } from '@/app/lib/utils'
+import { Analysis } from '@/app/types/analysis'
 
 interface AnalysisCardProps {
-  analysis: {
-    id: string
-    title: string
-    address: string
-    propertyType: string
-    price: number
-    createdAt: string
-    updatedAt: string
-    versions: Array<{
-      id: string
-      version: number
-      createdAt: string
-    }>
-    tags: string[]
-    type: string
-    monthlyPayment?: number
-    downPayment?: number
-    interestRate?: number
-    monthlyRent?: number
-    monthlyCashFlow?: number
-    capRate?: number
-    arv?: number
-    repairCosts?: number
-    potentialProfit?: number
-    nightlyRate?: number
-    monthlyRevenue?: number
-    occupancyRate?: number
-  }
+  analysis: Analysis
   onEdit: (id: string) => void
   onDelete: (id: string) => void
   onDownload: (id: string) => void
@@ -111,7 +85,7 @@ export function AnalysisCard({
         return [
           { label: 'ARV', value: formatCurrency(analysis.arv) },
           { label: 'Repair Costs', value: formatCurrency(analysis.repairCosts) },
-          { label: 'Potential Profit', value: formatCurrency(analysis.potentialProfit) }
+          { label: 'Potential Profit', value: formatPercentage(analysis.potentialProfit) }
         ]
       case 'airbnb':
         return [
@@ -176,17 +150,15 @@ export function AnalysisCard({
           >
             View
           </Button>
-          {onDelete && (
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={handleDelete}
-              disabled={isDeleting}
-              className="bg-black text-red-500 border-red-500 hover:bg-red-900 hover:text-red-400"
-            >
-              {isDeleting ? 'Deleting...' : 'Delete'}
-            </Button>
-          )}
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleDelete}
+            disabled={isDeleting}
+            className="bg-black text-red-500 border-red-500 hover:bg-red-900 hover:text-red-400"
+          >
+            {isDeleting ? 'Deleting...' : 'Delete'}
+          </Button>
         </div>
         <ExportMenu analyses={[analysis]} />
       </CardFooter>

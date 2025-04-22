@@ -7,37 +7,49 @@ import { toast } from 'sonner';
 
 interface AnalysisListProps {
   analyses: Analysis[];
+  onEdit?: (id: string) => void;
   onDelete?: (id: string) => void;
-  onBulkDelete?: (ids: string[]) => void;
+  onDownload?: (id: string) => void;
   onView?: (id: string) => void;
+  showBulkActions?: boolean;
 }
 
-export function AnalysisList({ 
-  analyses, 
-  onDelete, 
-  onBulkDelete,
-  onView 
+export function AnalysisList({
+  analyses,
+  onEdit,
+  onDelete,
+  onDownload,
+  onView,
+  showBulkActions = false
 }: AnalysisListProps) {
   const [selectedAnalyses, setSelectedAnalyses] = useState<string[]>([]);
   const [isExporting, setIsExporting] = useState(false);
   
   const handleSelect = (id: string, selected: boolean) => {
-    setSelectedAnalyses(prev => 
-      selected 
-        ? [...prev, id] 
-        : prev.filter(analysisId => analysisId !== id)
-    );
+    if (selected) {
+      setSelectedAnalyses(prev => [...prev, id]);
+    } else {
+      setSelectedAnalyses(prev => prev.filter(analysisId => analysisId !== id));
+    }
+  };
+  
+  const handleSelectAll = () => {
+    if (selectedAnalyses.length === analyses.length) {
+      setSelectedAnalyses([]);
+    } else {
+      setSelectedAnalyses(analyses.map(analysis => analysis.id));
+    }
   };
   
   const handleBulkDelete = async () => {
-    if (!onBulkDelete || selectedAnalyses.length === 0) return;
+    if (!onDelete) return;
     
     try {
-      await onBulkDelete(selectedAnalyses);
+      await Promise.all(selectedAnalyses.map(id => onDelete(id)));
       setSelectedAnalyses([]);
       toast.success(`Successfully deleted ${selectedAnalyses.length} analyses`);
     } catch (error) {
-      console.error('Bulk delete error:', error);
+      console.error('Error deleting analyses:', error);
       toast.error('Failed to delete analyses');
     }
   };
@@ -48,40 +60,39 @@ export function AnalysisList({
   
   return (
     <div className="space-y-4">
-      {selectedAnalyses.length > 0 && (
-        <div className="flex items-center justify-between p-4 bg-green-900/20 border border-green-500 rounded-md">
-          <div className="flex items-center gap-2">
-            <span className="text-green-400">
-              {selectedAnalyses.length} {selectedAnalyses.length === 1 ? 'analysis' : 'analyses'} selected
-            </span>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => setSelectedAnalyses([])}
+      {showBulkActions && analyses.length > 0 && (
+        <div className="flex justify-between items-center">
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleSelectAll}
               className="bg-black text-green-500 border-green-500 hover:bg-green-900 hover:text-green-400"
             >
-              Clear
+              {selectedAnalyses.length === analyses.length ? 'Deselect All' : 'Select All'}
             </Button>
-          </div>
-          <div className="flex items-center gap-2">
-            <ExportMenu 
-              analyses={analyses} 
-              selectedAnalyses={selectedAnalysisObjects}
-              onExportStart={() => setIsExporting(true)}
-              onExportComplete={() => setIsExporting(false)}
-            />
-            {onBulkDelete && (
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={handleBulkDelete}
-                disabled={isExporting}
-                className="bg-black text-red-500 border-red-500 hover:bg-red-900 hover:text-red-400"
-              >
-                Delete Selected
-              </Button>
+            {selectedAnalyses.length > 0 && (
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleBulkDelete}
+                  className="bg-black text-red-500 border-red-500 hover:bg-red-900 hover:text-red-400"
+                >
+                  Delete Selected
+                </Button>
+                <ExportMenu 
+                  analyses={analyses.filter(a => selectedAnalyses.includes(a.id))}
+                  selectedAnalyses={selectedAnalysisObjects}
+                  onExportStart={() => setIsExporting(true)}
+                  onExportComplete={() => setIsExporting(false)}
+                />
+              </>
             )}
           </div>
+          <p className="text-sm text-gray-400">
+            {selectedAnalyses.length} of {analyses.length} selected
+          </p>
         </div>
       )}
       
@@ -90,9 +101,11 @@ export function AnalysisList({
           <AnalysisCard 
             key={analysis.id} 
             analysis={analysis} 
+            onEdit={onEdit || (() => {})}
+            onDelete={onDelete || (() => {})}
+            onDownload={onDownload || (() => {})}
             isSelected={selectedAnalyses.includes(analysis.id)}
             onSelect={handleSelect}
-            onDelete={onDelete}
             onView={onView}
           />
         ))}

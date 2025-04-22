@@ -7,11 +7,11 @@ import {
   DialogTrigger
 } from '@/app/components/ui/dialog';
 import { Button } from '@/app/components/ui/button';
-import { ScrollArea } from '@/app/components/ui/scroll-area';
 import { Analysis } from '@/app/types/analysis';
 import { formatCurrency, formatDate } from '@/app/lib/utils';
 import { useTier } from '@/app/contextEngine/tier';
 import { toast } from 'sonner';
+import { ErrorBoundary } from './ErrorBoundary';
 
 interface CompareModalProps {
   analyses: Analysis[];
@@ -83,7 +83,7 @@ export function CompareModal({ analyses, onClose }: CompareModalProps) {
           <DialogTitle>Compare Analyses</DialogTitle>
         </DialogHeader>
         
-        <ScrollArea className="h-[calc(90vh-8rem)]">
+        <div className="h-[calc(90vh-8rem)] overflow-y-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
             {analyses.map((analysis) => {
               const metrics = getKeyMetrics(analysis);
@@ -133,7 +133,7 @@ export function CompareModal({ analyses, onClose }: CompareModalProps) {
               );
             })}
           </div>
-        </ScrollArea>
+        </div>
         
         {tier === 'free' && (
           <div className="mt-4 p-4 bg-blue-50 rounded-lg text-center">

@@ -37,6 +37,7 @@ export interface Analysis {
   updatedAt: string
   address: string
   notes?: string
+  aiInsights?: string
   tags: string[]
   
   // Mortgage specific fields

@@ -7,7 +7,7 @@ import { prisma } from '@/app/lib/prisma'
 export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session?.user) {
+    if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -16,7 +16,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid tier' }, { status: 400 })
     }
 
-    const currentTier = session.user.tier as UserTier
+    const currentTier = session.user.subscriptionTier as UserTier
     const nextTier = getNextTier(currentTier)
 
     if (!nextTier || nextTier !== targetTier) {
@@ -26,10 +26,10 @@ export async function POST(request: Request) {
     // TODO: Integrate with payment processor (Stripe, etc.)
     const price = getTierPrice(targetTier)
 
-    // For now, just update the tier in the database
+    // Update user tier in database
     await prisma.user.update({
-      where: { id: session.user.id },
-      data: { tier: targetTier }
+      where: { email: session.user.email },
+      data: { subscriptionTier: targetTier },
     })
 
     return NextResponse.json({

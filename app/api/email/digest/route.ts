@@ -27,7 +27,7 @@ export async function POST(req: Request) {
     const oneWeekAgo = new Date();
     oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
-    const analyses = await db.collection('analyses')
+    const analyses = (await db.collection('analyses')
       .find({
         userId: session.user.email,
         createdAt: { $gte: oneWeekAgo },
@@ -35,7 +35,7 @@ export async function POST(req: Request) {
       })
       .sort({ createdAt: -1 })
       .limit(5)
-      .toArray() as Analysis[];
+      .toArray()) as unknown as Analysis[];
 
     if (analyses.length === 0) {
       return NextResponse.json({ message: 'No analyses to include in digest' });
@@ -49,20 +49,17 @@ export async function POST(req: Request) {
       await sendEmail({
         to: session.user.email,
         subject: 'Your Weekly Analysis Digest',
-        text: `Here's your weekly analysis digest with ${analyses.length} properties.`,
+        text: 'Please find your weekly analysis digest attached.',
         attachments: [{
-          filename: 'analysis-digest.pdf',
-          content: pdfBuffer
-        }]
+          filename: 'weekly-digest.pdf',
+          content: pdfBuffer,
+        }],
       });
     }
 
-    return NextResponse.json({
-      message: testMode ? 'Test digest generated' : 'Digest sent',
-      analysisCount: analyses.length
-    });
+    return NextResponse.json({ message: 'Digest sent successfully' });
   } catch (error) {
-    console.error('Digest error:', error);
+    console.error('Error generating digest:', error);
     return NextResponse.json(
       { error: 'Failed to generate digest' },
       { status: 500 }

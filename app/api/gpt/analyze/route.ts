@@ -155,7 +155,7 @@ export async function POST(request: Request) {
     }
 
     // Get user tier from session
-    const tier = session.user.tier || 'free'
+    const tier = session.user.subscriptionTier || 'free'
     if (tier === 'free') {
       return NextResponse.json({ error: 'Upgrade required' }, { status: 403 })
     }
