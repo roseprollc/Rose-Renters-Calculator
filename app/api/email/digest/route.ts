@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/app/api/auth/[...nextauth]/options';
 import { clientPromise } from '@/app/lib/mongodb';
 import { Analysis } from '@/app/types/analysis';
 import { generatePDF } from '@/app/lib/pdfGenerator';

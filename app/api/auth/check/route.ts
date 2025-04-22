@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '../[...nextauth]/options';
 
 export async function GET() {
-  const cookieStore = cookies();
-  const authToken = cookieStore.get('auth_token');
+  const session = await getServerSession(authOptions);
   
   return NextResponse.json({
-    authenticated: !!authToken
+    authenticated: !!session,
+    user: session?.user
   });
 } 

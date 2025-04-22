@@ -14,6 +14,10 @@ export async function POST(request: Request) {
 
     const data = await request.json();
     const userId = session.user.id;
+    
+    if (!userId) {
+      return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
+    }
 
     const analysis = await prisma.analysis.create({
       data: {

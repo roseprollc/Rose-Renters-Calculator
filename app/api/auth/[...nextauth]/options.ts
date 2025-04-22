@@ -1,33 +1,11 @@
 import { NextAuthOptions } from "next-auth"
-import GoogleProvider from "next-auth/providers/google"
-import CredentialsProvider from "next-auth/providers/credentials"
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
+import CredentialsProvider from "next-auth/providers/credentials"
+import GoogleProvider from "next-auth/providers/google"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
-
-type UserType = {
-  id: string
-  email: string
-  name?: string
-  subscriptionTier: 'free' | 'pro' | 'elite'
-}
-
-declare module "next-auth" {
-  interface User extends UserType {}
-
-  interface Session {
-    user: User & {
-      subscriptionTier: 'free' | 'pro' | 'elite'
-    }
-  }
-}
-
-declare module "next-auth/jwt" {
-  interface JWT {
-    id: string
-    subscriptionTier: 'free' | 'pro' | 'elite'
-  }
-}
+import type { User } from "next-auth"
+import type { SubscriptionTier } from "@prisma/client"
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -37,87 +15,63 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
     CredentialsProvider({
-      id: 'credentials',
-      name: 'Credentials',
+      name: "credentials",
       credentials: {
-        email: { label: 'Email', type: 'email' },
-        password: { label: 'Password', type: 'password' },
-        mode: { label: 'Mode', type: 'text' }
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+        mode: { label: "Mode", type: "text" }, // "login" or "signup"
       },
-      async authorize(credentials): Promise<UserType | null> {
+      async authorize(credentials): Promise<User | null> {
         if (!credentials?.email || !credentials?.password) {
-          throw new Error('Missing credentials');
+          throw new Error("Missing credentials")
         }
 
-        const { email, password, mode } = credentials;
+        const user = await prisma.user.findUnique({
+          where: { email: credentials.email },
+        })
 
-        // For demo purposes, always allow the demo account
-        if (email === 'demo@example.com' && password === 'demo123') {
-          return {
-            id: 'demo',
-            email: 'demo@example.com',
-            name: 'Demo User',
-            subscriptionTier: 'free'
-          };
-        }
-
-        if (mode === 'signup') {
-          // Check if user already exists
-          const existingUser = await prisma.user.findUnique({
-            where: { email }
-          });
-
-          if (existingUser) {
-            throw new Error('User already exists');
+        if (credentials.mode === "signup") {
+          if (user) {
+            throw new Error("User already exists")
           }
 
-          // Create new user
-          const hashedPassword = await bcrypt.hash(password, 10);
-          const user = await prisma.user.create({
+          const hashedPassword = await bcrypt.hash(credentials.password, 10)
+          const newUser = await prisma.user.create({
             data: {
-              email,
+              email: credentials.email,
               password: hashedPassword,
-              subscriptionTier: 'free'
-            }
-          });
-          
-          return {
-            id: user.id,
-            email: user.email,
-            subscriptionTier: user.subscriptionTier as 'free' | 'pro' | 'elite'
-          };
-        }
+              subscriptionTier: "free" as SubscriptionTier,
+            },
+          })
 
-        // Login mode
-        const user = await prisma.user.findUnique({
-          where: { email }
-        });
+          return {
+            id: newUser.id,
+            email: newUser.email,
+            name: newUser.name,
+            subscriptionTier: newUser.subscriptionTier,
+          }
+        }
 
         if (!user) {
-          throw new Error('No user found with this email');
+          throw new Error("Invalid credentials")
         }
 
-        const isValid = await bcrypt.compare(password, user.password);
+        const isValid = await bcrypt.compare(credentials.password, user.password || '')
         if (!isValid) {
-          throw new Error('Invalid password');
+          throw new Error("Invalid credentials")
         }
 
         return {
           id: user.id,
           email: user.email,
-          subscriptionTier: user.subscriptionTier as 'free' | 'pro' | 'elite'
-        };
-      }
-    })
+          name: user.name,
+          subscriptionTier: user.subscriptionTier,
+        }
+      },
+    }),
   ],
   session: {
-    strategy: "jwt" as const,
-    maxAge: 30 * 24 * 60 * 60, // 30 days
-  },
-  pages: {
-    signIn: '/login',
-    error: '/login',
-    signOut: '/'
+    strategy: "jwt",
   },
   callbacks: {
     async jwt({ token, user }) {
@@ -128,11 +82,14 @@ export const authOptions: NextAuthOptions = {
       return token
     },
     async session({ session, token }) {
-      if (session.user) {
+      if (session.user && token) {
         session.user.id = token.id as string
-        session.user.subscriptionTier = token.subscriptionTier as 'free' | 'pro' | 'elite'
+        session.user.subscriptionTier = token.subscriptionTier as SubscriptionTier
       }
       return session
-    }
-  }
+    },
+  },
+  pages: {
+    signIn: "/login",
+  },
 } 

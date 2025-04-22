@@ -13,7 +13,7 @@ export async function POST(request: Request) {
     }
 
     // Get user tier to check if they have access to AI features
-    const userTier = session.user.role || 'free'
+    const userTier = session.user.subscriptionTier || 'free'
     
     // Check if user has access to AI features
     if (userTier === 'free') {

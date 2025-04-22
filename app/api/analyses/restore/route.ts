@@ -4,6 +4,11 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/options';
 import { prisma } from '@/app/lib/prisma';
 import { Analysis } from '@/app/types/analysis';
 
+interface AnalysisData {
+  propertyAddress?: string;
+  [key: string]: any;
+}
+
 export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);
@@ -59,17 +64,19 @@ export async function POST(request: Request) {
 
     // Get the version to restore
     const versionToRestore = analysis.versions[versionIndex];
+    const versionData = versionToRestore.data as AnalysisData;
+    const currentData = analysis.data as AnalysisData;
 
     // Update the analysis with the restored version and add current state to versions
     const updatedAnalysis = await prisma.analysis.update({
       where: { id: analysisId },
       data: {
-        data: versionToRestore.data,
-        propertyAddress: versionToRestore.data.propertyAddress || analysis.propertyAddress,
+        data: versionData,
+        propertyAddress: versionData?.propertyAddress || analysis.propertyAddress,
         notes: versionToRestore.notes,
         versions: {
           create: {
-            data: analysis.data,
+            data: currentData,
             notes: 'Auto-saved before restore',
             aiSummary: analysis.versions[0]?.aiSummary
           }

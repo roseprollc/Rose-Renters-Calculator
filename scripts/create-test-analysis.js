@@ -10,7 +10,7 @@ async function createTestAnalysis() {
     const db = client.db();
     
     const testAnalysis = {
-      userId: "auth0|test-user", // We'll update this with your actual Auth0 user ID from the profile page
+      userId: "nextauth|test-user", // Using NextAuth user ID format
       propertyAddress: "123 Test Street, Example City, ST 12345",
       propertyType: "Single Family Home",
       source: "Zillow",

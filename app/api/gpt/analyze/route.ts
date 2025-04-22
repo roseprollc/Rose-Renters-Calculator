@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
-import { authOptions } from '@/app/api/auth/[...nextauth]/route'
+import { authOptions } from '@/app/api/auth/[...nextauth]/options'
 
 // Helper to generate prompts based on calculator type and tier
 function generatePrompt(calculatorType: string, formData: any, tier: string) {

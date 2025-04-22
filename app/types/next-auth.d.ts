@@ -1,23 +1,31 @@
 import 'next-auth'
+import type { DefaultSession } from "next-auth"
+import type { SubscriptionTier } from "@prisma/client"
 
-declare module 'next-auth' {
+declare module "next-auth" {
   interface User {
-    id: string
-    email?: string | null
-    name?: string | null
-    image?: string | null
-    role?: string
-    subscriptionTier?: 'free' | 'pro' | 'enterprise'
+    id: string;
+    email: string;
+    name?: string | null;
+    image?: string | null;
+    subscriptionTier: SubscriptionTier;
   }
 
-  interface Session {
+  interface Session extends DefaultSession {
     user: {
-      id: string
-      email?: string | null
-      name?: string | null
-      image?: string | null
-      role?: string
-      subscriptionTier?: 'free' | 'pro' | 'elite'
-    }
+      id: string;
+      email: string;
+      name?: string | null;
+      image?: string | null;
+      subscriptionTier: SubscriptionTier;
+    } & DefaultSession["user"]
+  }
+
+  interface JWT {
+    id: string;
+    email: string;
+    name?: string | null;
+    image?: string | null;
+    subscriptionTier: SubscriptionTier;
   }
 } 
