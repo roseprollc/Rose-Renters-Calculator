@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ✅ Add techno font globally */
+@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
+body {
+  font-family: 'VT323', monospace;
+  color: #000000;
+  background-color: #b4fc7f;
+}
+
+/* ✅ Ensure dark mode support */
+html.dark {
+  background-color: #0f0f0f;
+  color: #00ff88;
+}
+
+/* ✅ Tailwind utility extension */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}

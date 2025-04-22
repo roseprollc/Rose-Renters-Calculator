@@ -1,36 +1,31 @@
 import React, { createContext, useState, useEffect } from "react";
 
-// Create the context
 export const ThemeContext = createContext();
 
 export const ThemeProvider = ({ children }) => {
-  const getInitialTheme = () => {
-    try {
-      const saved = localStorage.getItem("theme");
-      if (saved === "light" || saved === "dark") return saved;
-    } catch (err) {
-      console.warn("Unable to access localStorage for theme:", err);
-    }
-
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    return prefersDark ? "dark" : "light";
-  };
-
-  const [theme, setTheme] = useState(getInitialTheme);
+  const [theme, setTheme] = useState("light");
+  const [hasMounted, setHasMounted] = useState(false);
 
   useEffect(() => {
-    try {
-      document.body.style.backgroundColor = theme === "dark" ? "#121212" : "#ffffff";
-      document.body.setAttribute("data-theme", theme);
-      localStorage.setItem("theme", theme);
-    } catch (err) {
-      console.warn("Unable to persist theme:", err);
-    }
-  }, [theme]);
+    const saved = localStorage.getItem("theme");
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+    setTheme(saved || (prefersDark ? "dark" : "light"));
+    setHasMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!hasMounted) return;
+    document.body.style.backgroundColor = theme === "dark" ? "#121212" : "#ffffff";
+    localStorage.setItem("theme", theme);
+  }, [theme, hasMounted]);
 
   const toggleTheme = () => {
     setTheme((prev) => (prev === "light" ? "dark" : "light"));
   };
+
+  // Prevent rendering until after client-side hydration
+  if (!hasMounted) return null;
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>

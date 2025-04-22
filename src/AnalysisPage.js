@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 
 function AnalysisPage() {
-  const { id } = useParams();
+  const router = useRouter();
+  const { id } = router.query;
   const [data, setData] = useState(null);
-  const navigate = useNavigate();
   const [prefersDark, setPrefersDark] = useState(
-    window.matchMedia("(prefers-color-scheme: dark)").matches
+    typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches
   );
 
   useEffect(() => {
+    if (!id) return;
     fetch(`https://rose-renters-backend.onrender.com/api/analysis/${id}`)
       .then((res) => res.json())
       .then(setData)
@@ -17,17 +18,19 @@ function AnalysisPage() {
   }, [id]);
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    const handleThemeChange = (e) => setPrefersDark(e.matches);
-    mediaQuery.addEventListener("change", handleThemeChange);
-    return () => mediaQuery.removeEventListener("change", handleThemeChange);
+    if (typeof window !== "undefined") {
+      const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+      const handleThemeChange = (e) => setPrefersDark(e.matches);
+      mediaQuery.addEventListener("change", handleThemeChange);
+      return () => mediaQuery.removeEventListener("change", handleThemeChange);
+    }
   }, []);
 
   const handleEdit = () => {
     if (data && data.results) {
       localStorage.setItem("prefillForm", JSON.stringify(data));
       localStorage.setItem("prefillResults", JSON.stringify(data.results));
-      navigate("/");
+      router.push("/");
     }
   };
 
@@ -51,12 +54,12 @@ function AnalysisPage() {
   const socialIcons = [
     {
       name: "Facebook",
-      url: `https://www.facebook.com/sharer/sharer.php?u=${window.location.href}`,
+      url: `https://www.facebook.com/sharer/sharer.php?u=${typeof window !== "undefined" ? window.location.href : ""}`,
       icon: "https://cdn-icons-png.flaticon.com/512/733/733547.png",
     },
     {
       name: "LinkedIn",
-      url: `https://www.linkedin.com/sharing/share-offsite/?url=${window.location.href}`,
+      url: `https://www.linkedin.com/sharing/share-offsite/?url=${typeof window !== "undefined" ? window.location.href : ""}`,
       icon: "https://cdn-icons-png.flaticon.com/512/174/174857.png",
     },
     {
@@ -71,7 +74,7 @@ function AnalysisPage() {
     },
     {
       name: "X (Twitter)",
-      url: `https://x.com/intent/tweet?url=${window.location.href}`,
+      url: `https://x.com/intent/tweet?url=${typeof window !== "undefined" ? window.location.href : ""}`,
       icon: "https://cdn-icons-png.flaticon.com/512/3670/3670151.png",
     },
   ];

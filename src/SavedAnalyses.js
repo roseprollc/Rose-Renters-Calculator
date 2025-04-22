@@ -1,261 +1,149 @@
-import React, { useEffect, useState, useContext } from "react";
-import { Link } from "react-router-dom";
-import { ToastContainer, toast } from "react-toastify";
-import { ThemeContext } from "./context/ThemeContext";
-import "react-toastify/dist/ReactToastify.css";
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 
-const SavedAnalyses = () => {
-  const { theme } = useContext(ThemeContext);
-  const [analyses, setAnalyses] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [favoritesLoaded, setFavoritesLoaded] = useState(false);
-  const [search, setSearch] = useState("");
-  const [sortOrder, setSortOrder] = useState("newest");
-  const [filterFavorites, setFilterFavorites] = useState("all");
-  const [favorites, setFavorites] = useState([]);
+export default function SavedView() {
+  const router = useRouter();
+  const { id } = router.query;
+  const [data, setData] = useState(null);
+  const [prefersDark, setPrefersDark] = useState(false);
 
   useEffect(() => {
-    const fetchAnalyses = async () => {
-      try {
-        const res = await fetch(
-          "https://rose-renters-backend.onrender.com/api/analysis/all"
-        );
-        const data = await res.json();
-        setAnalyses(data);
+    if (!id) return;
+    fetch(`https://rose-renters-backend.onrender.com/api/analysis/${id}`)
+      .then((res) => res.json())
+      .then(setData)
+      .catch((err) => console.error("Error loading analysis:", err));
+  }, [id]);
 
-        const stored = localStorage.getItem("favorites");
-        setFavorites(stored ? JSON.parse(stored) : []);
-      } catch (error) {
-        console.error("Failed to fetch analyses:", error);
-        toast.error("Failed to load saved analyses.");
-      } finally {
-        setLoading(false);
-        setFavoritesLoaded(true);
-      }
-    };
-
-    fetchAnalyses();
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    setPrefersDark(mediaQuery.matches);
+    const handleChange = (e) => setPrefersDark(e.matches);
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
   }, []);
 
-  const handleDelete = async (id) => {
-    try {
-      await fetch(
-        `https://rose-renters-backend.onrender.com/api/analysis/delete/${id}`,
-        { method: "DELETE" }
-      );
-      setAnalyses((prev) => prev.filter((item) => item._id !== id));
-      setFavorites((prev) => {
-        const updated = prev.filter((favId) => favId !== id);
-        localStorage.setItem("favorites", JSON.stringify(updated));
-        return updated;
-      });
-      toast.success("Analysis deleted.");
-    } catch (error) {
-      console.error("Failed to delete analysis:", error);
-      toast.error("Error deleting analysis. Please try again.");
+  const handleEdit = () => {
+    if (data && data.results) {
+      localStorage.setItem("prefillForm", JSON.stringify(data));
+      localStorage.setItem("prefillResults", JSON.stringify(data.results));
+      router.push("/renters");
     }
   };
 
-  const handleExportCSV = () => {
-    const headers = ["Purchase Price", "Monthly Rent", "Created At"];
-    const rows = filteredAnalyses.map((item) => [
-      item.purchasePrice,
-      item.monthlyRent,
-      new Date(item.createdAt).toLocaleString(),
-    ]);
+  if (!data)
+    return <p style={{ textAlign: "center", padding: "2rem" }}>Loading analysis...</p>;
+  if (!data.results)
+    return <p style={{ textAlign: "center", padding: "2rem" }}>No results found for this analysis.</p>;
 
-    const csvContent =
-      "data:text/csv;charset=utf-8," +
-      [headers, ...rows].map((row) => row.join(",")).join("\n");
-
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "saved_analyses.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const containerStyle = {
+    maxWidth: "700px",
+    margin: "auto",
+    padding: "2rem",
+    borderRadius: "10px",
+    background: prefersDark ? "#1e1e1e" : "#ffffff",
+    color: prefersDark ? "#f0f0f0" : "#111",
+    boxShadow: prefersDark
+      ? "0 0 15px rgba(255,255,255,0.05)"
+      : "0 0 10px rgba(0,0,0,0.05)",
   };
 
-  const toggleFavorite = (id) => {
-    setFavorites((prev) => {
-      let updated;
-      if (prev.includes(id)) {
-        updated = prev.filter((favId) => favId !== id);
-      } else {
-        updated = [...prev, id];
-      }
-      localStorage.setItem("favorites", JSON.stringify(updated));
-      return updated;
-    });
-  };
-
-  const filteredAnalyses = analyses
-    .filter((item) => {
-      const purchase = String(item.purchasePrice || "");
-      const rent = String(item.monthlyRent || "");
-      const matchSearch =
-        purchase.includes(search.toLowerCase()) ||
-        rent.includes(search.toLowerCase());
-      const isFavorite = favorites.includes(item._id);
-      return matchSearch && (filterFavorites === "all" || isFavorite);
-    })
-    .sort((a, b) =>
-      sortOrder === "newest"
-        ? new Date(b.createdAt) - new Date(a.createdAt)
-        : new Date(a.createdAt) - new Date(b.createdAt)
-    );
-
-  if (loading || !favoritesLoaded)
-    return <p style={{ textAlign: "center" }}>Loading...</p>;
-
-  const cardStyle = {
-    padding: "1rem",
-    marginBottom: "1rem",
-    border: theme === "dark" ? "1px solid #333" : "1px solid #e0e0e0",
-    borderRadius: "8px",
-    boxShadow:
-      theme === "dark"
-        ? "0 2px 5px rgba(255,255,255,0.05)"
-        : "0 2px 5px rgba(0,0,0,0.05)",
-    backgroundColor: theme === "dark" ? "#1e1e1e" : "#ffffff",
-    color: theme === "dark" ? "#f0f0f0" : "#111111",
-  };
+  const socialIcons = [
+    {
+      name: "Facebook",
+      url: `https://www.facebook.com/sharer/sharer.php?u=${window.location.href}`,
+      icon: "https://cdn-icons-png.flaticon.com/512/733/733547.png",
+    },
+    {
+      name: "LinkedIn",
+      url: `https://www.linkedin.com/sharing/share-offsite/?url=${window.location.href}`,
+      icon: "https://cdn-icons-png.flaticon.com/512/174/174857.png",
+    },
+    {
+      name: "Instagram",
+      url: "https://www.instagram.com/",
+      icon: "https://cdn-icons-png.flaticon.com/512/2111/2111463.png",
+    },
+    {
+      name: "TikTok",
+      url: "https://www.tiktok.com/",
+      icon: "https://cdn-icons-png.flaticon.com/512/3046/3046121.png",
+    },
+    {
+      name: "X (Twitter)",
+      url: `https://x.com/intent/tweet?url=${window.location.href}`,
+      icon: "https://cdn-icons-png.flaticon.com/512/3670/3670151.png",
+    },
+  ];
 
   return (
-    <div style={{ padding: "2rem", maxWidth: "700px", margin: "auto" }}>
-      <ToastContainer position="top-center" autoClose={3000} />
-      <h2 style={{ marginBottom: "1.5rem" }}>📂 Saved Analyses</h2>
+    <div style={containerStyle}>
+      <h1 style={{ marginBottom: "1rem" }}>📊 Public Analysis View</h1>
 
-      <div
-        style={{
-          marginBottom: "1.5rem",
-          display: "flex",
-          gap: "1rem",
-          flexWrap: "wrap",
-          alignItems: "center",
-        }}
-      >
-        <input
-          type="text"
-          placeholder="Search by price or rent..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          style={{
-            padding: "0.5rem 1rem",
-            flex: "1 1 200px",
-            borderRadius: "6px",
-            border: "1px solid #ccc",
-          }}
-        />
-        <select
-          value={sortOrder}
-          onChange={(e) => setSortOrder(e.target.value)}
-          style={{
-            padding: "0.5rem",
-            borderRadius: "6px",
-            border: "1px solid #ccc",
-          }}
-        >
-          <option value="newest">Newest First</option>
-          <option value="oldest">Oldest First</option>
-        </select>
-        <select
-          value={filterFavorites}
-          onChange={(e) => setFilterFavorites(e.target.value)}
-          style={{
-            padding: "0.5rem",
-            borderRadius: "6px",
-            border: "1px solid #ccc",
-          }}
-        >
-          <option value="all">All</option>
-          <option value="favorites">Favorites Only</option>
-        </select>
-        <button
-          onClick={handleExportCSV}
-          style={{
-            backgroundColor: "#10b981",
-            color: "#fff",
-            padding: "0.5rem 1rem",
-            borderRadius: "6px",
-            border: "none",
-            cursor: "pointer",
-            fontWeight: "600",
-          }}
-        >
-          ⬇️ Download CSV
-        </button>
+      {data?.tags && (
+        <p style={{ fontStyle: "italic", marginBottom: "1rem", color: prefersDark ? "#ccc" : "#555" }}>
+          🏷️ Notes/Tags: {data.tags}
+        </p>
+      )}
+
+      <div style={{ lineHeight: "1.8" }}>
+        <p><strong>Purchase Price:</strong> ${data.purchasePrice}</p>
+        <p><strong>Monthly Mortgage:</strong> ${data.results.mortgagePayment}</p>
+        <p><strong>Total Monthly Expenses:</strong> ${data.results.totalExpenses}</p>
+        <p><strong>Monthly Cash Flow:</strong> ${data.results.monthlyCashFlow}</p>
+        <p><strong>Annual Cash Flow:</strong> ${data.results.annualCashFlow}</p>
+        <p><strong>Cash-on-Cash ROI:</strong> {data.results.roi}%</p>
       </div>
 
-      {filteredAnalyses.length === 0 ? (
-        <p>No matching results found.</p>
-      ) : (
-        filteredAnalyses.map((item) => {
-          const isFavorited = favorites.includes(item._id);
-          return (
-            <div key={item._id} style={cardStyle}>
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <div>
-                  <p>
-                    <strong>Property:</strong> ${item.purchasePrice}
-                  </p>
-                  <p>
-                    <strong>Monthly Rent:</strong> ${item.monthlyRent}
-                  </p>
-                </div>
-                <button
-                  onClick={() => toggleFavorite(item._id)}
-                  style={{
-                    fontSize: "1.25rem",
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                    color: isFavorited ? "#fbbf24" : "#aaa",
-                    transition: "color 0.3s ease",
-                  }}
-                  title={isFavorited ? "Unfavorite" : "Mark as Favorite"}
-                >
-                  ⭐
-                </button>
-              </div>
-              <div
-                style={{ marginTop: "0.5rem", display: "flex", gap: "1rem" }}
-              >
-                <Link
-                  to={`/analysis/${item._id}`}
-                  style={{ color: "#2563eb", textDecoration: "none" }}
-                >
-                  View →
-                </Link>
-                <a
-                  href={`${window.location.origin}/analysis/${item._id}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ color: "#059669", textDecoration: "none" }}
-                >
-                  Public Link ↗
-                </a>
-                <button
-                  onClick={() => handleDelete(item._id)}
-                  style={{
-                    background: "#ef4444",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "4px",
-                    padding: "0.25rem 0.75rem",
-                    cursor: "pointer",
-                  }}
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-          );
-        })
-      )}
+      <p style={{ marginTop: "2rem", fontSize: "0.9rem", color: prefersDark ? "#aaa" : "#777" }}>
+        Shared by: <strong>{data.email || "anonymous"}</strong>
+      </p>
+
+      <div style={{ marginTop: "1.5rem" }}>
+        <p style={{ fontWeight: "600", marginBottom: "0.5rem" }}>
+          🔗 Share this analysis:
+        </p>
+        <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", alignItems: "center" }}>
+          {socialIcons.map((platform) => (
+            <a
+              key={platform.name}
+              href={platform.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              title={platform.name}
+              style={{
+                width: "32px",
+                height: "32px",
+                borderRadius: "6px",
+                overflow: "hidden",
+                display: "inline-block",
+              }}
+            >
+              <img
+                src={platform.icon}
+                alt={platform.name}
+                style={{ width: "100%", height: "100%", objectFit: "contain" }}
+              />
+            </a>
+          ))}
+        </div>
+      </div>
+
+      <button
+        onClick={handleEdit}
+        style={{
+          marginTop: "2rem",
+          backgroundColor: "#3b82f6",
+          color: "#fff",
+          padding: "0.6rem 1.2rem",
+          border: "none",
+          borderRadius: "6px",
+          cursor: "pointer",
+          fontWeight: "600",
+        }}
+      >
+        ✏️ Edit This Analysis
+      </button>
     </div>
   );
-};
-
-export default SavedAnalyses;
+}
