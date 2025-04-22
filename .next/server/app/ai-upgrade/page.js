@@ -3,4 +3,4 @@
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
- */let a=(0,s(69224).Z)("Check",[["path",{d:"M20 6 9 17l-5-5",key:"1gmf2c"}]])},36709:(e,t,s)=>{"use strict";s.r(t),s.d(t,{$$typeof:()=>n,__esModule:()=>r,default:()=>l});let a=(0,s(86843).createProxy)(String.raw`/Users/wolf/bnb-calc-clone/app/ai-upgrade/page.tsx`),{__esModule:r,$$typeof:n}=a,l=a.default}};var t=require("../../webpack-runtime.js");t.C(e);var s=e=>t(t.s=e),a=t.X(0,[1638,8024,2642,3933],()=>s(68494));module.exports=a})();
+ */let a=(0,s(69224).Z)("Check",[["path",{d:"M20 6 9 17l-5-5",key:"1gmf2c"}]])},36709:(e,t,s)=>{"use strict";s.r(t),s.d(t,{$$typeof:()=>n,__esModule:()=>r,default:()=>l});let a=(0,s(86843).createProxy)(String.raw`/Users/wolf/bnb-calc-clone/app/ai-upgrade/page.tsx`),{__esModule:r,$$typeof:n}=a,l=a.default}};var t=require("../../webpack-runtime.js");t.C(e);var s=e=>t(t.s=e),a=t.X(0,[1638,8356,2642,7674,3933],()=>s(68494));module.exports=a})();

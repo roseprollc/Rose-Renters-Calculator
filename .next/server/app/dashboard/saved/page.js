@@ -8,4 +8,4 @@
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
- */let n=(0,r(69224).Z)("Search",[["circle",{cx:"11",cy:"11",r:"8",key:"4ej97u"}],["path",{d:"m21 21-4.3-4.3",key:"1qie3q"}]])},50337:(e,t,r)=>{"use strict";r.r(t),r.d(t,{$$typeof:()=>a,__esModule:()=>s,default:()=>o});let n=(0,r(86843).createProxy)(String.raw`/Users/wolf/bnb-calc-clone/app/dashboard/saved/page.tsx`),{__esModule:s,$$typeof:a}=n,o=n.default}};var t=require("../../../webpack-runtime.js");t.C(e);var r=e=>t(t.s=e),n=t.X(0,[1638,8024,4429,1764],()=>r(15569));module.exports=n})();
+ */let n=(0,r(69224).Z)("Search",[["circle",{cx:"11",cy:"11",r:"8",key:"4ej97u"}],["path",{d:"m21 21-4.3-4.3",key:"1qie3q"}]])},50337:(e,t,r)=>{"use strict";r.r(t),r.d(t,{$$typeof:()=>a,__esModule:()=>s,default:()=>o});let n=(0,r(86843).createProxy)(String.raw`/Users/wolf/bnb-calc-clone/app/dashboard/saved/page.tsx`),{__esModule:s,$$typeof:a}=n,o=n.default}};var t=require("../../../webpack-runtime.js");t.C(e);var r=e=>t(t.s=e),n=t.X(0,[1638,8356,7674,4429,1764],()=>r(15569));module.exports=n})();

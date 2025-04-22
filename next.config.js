@@ -6,10 +6,14 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: '**.redfin.com',
+        port: '',
+        pathname: '/**',
       },
       {
         protocol: 'https',
         hostname: '**.realtor.com',
+        port: '',
+        pathname: '/**',
       },
     ],
   },
@@ -63,8 +67,8 @@ const nextConfig = {
   },
   output: 'standalone',
   experimental: {
-    serverComponentsExternalPackages: ['@prisma/client', 'prisma'],
-  },
+    serverComponentsExternalPackages: ['@prisma/client', 'prisma']
+  }
 }
 
 module.exports = nextConfig
