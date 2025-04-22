@@ -695,7 +695,7 @@ export default function Home() {
           </>
         )
       case 'renters':
-        return (
+  return (
           <>
             <div className="mb-6">
               <label className="block text-gray-400 mb-2">Monthly Rent (${monthlyRent})</label>
@@ -740,7 +740,7 @@ export default function Home() {
                   [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#2ecc71]
                   [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-[0_0_10px_rgba(46,204,113,0.5)]"
               />
-            </div>
+          </div>
             <div className="mb-6">
               <label className="block text-gray-400 mb-2">Annual Maintenance & Repairs (${maintenanceExpense.toLocaleString()})</label>
               <input
@@ -755,7 +755,7 @@ export default function Home() {
                   [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#2ecc71]
                   [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-[0_0_10px_rgba(46,204,113,0.5)]"
               />
-            </div>
+        </div>
             <div className="mb-6">
               <label className="block text-gray-400 mb-2">Annual Insurance (${rentalInsurance.toLocaleString()})</label>
               <input
@@ -770,7 +770,7 @@ export default function Home() {
                   [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#2ecc71]
                   [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-[0_0_10px_rgba(46,204,113,0.5)]"
               />
-            </div>
+        </div>
             <div className="mb-6">
               <label className="block text-gray-400 mb-2">Annual Property Tax (${rentalPropertyTax.toLocaleString()})</label>
               <input
@@ -835,7 +835,7 @@ export default function Home() {
                   [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#2ecc71]
                   [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-[0_0_10px_rgba(46,204,113,0.5)]"
               />
-            </div>
+          </div>
             <div className="mb-6">
               <label className="block text-gray-400 mb-2">Holding Period ({holdingPeriod} months)</label>
               <input
@@ -849,7 +849,7 @@ export default function Home() {
                   [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#2ecc71]
                   [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-[0_0_10px_rgba(46,204,113,0.5)]"
               />
-            </div>
+          </div>
             <div className="mb-6">
               <label className="block text-gray-400 mb-2">Seller Closing Costs ({sellerClosingCosts}% of Purchase)</label>
               <input
@@ -864,7 +864,7 @@ export default function Home() {
                   [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#2ecc71]
                   [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-[0_0_10px_rgba(46,204,113,0.5)]"
               />
-            </div>
+        </div>
             <div className="mb-6">
               <label className="block text-gray-400 mb-2">Buyer Closing Costs ({buyerClosingCosts}% of ARV)</label>
               <input
@@ -878,8 +878,8 @@ export default function Home() {
                   [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4
                   [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#2ecc71]
                   [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-[0_0_10px_rgba(46,204,113,0.5)]"
-              />
-            </div>
+            />
+          </div>
             <div className="mb-6">
               <label className="block text-gray-400 mb-2">Marketing Costs (${marketingCosts.toLocaleString()})</label>
               <input
@@ -894,7 +894,7 @@ export default function Home() {
                   [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#2ecc71]
                   [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-[0_0_10px_rgba(46,204,113,0.5)]"
               />
-            </div>
+          </div>
             <div className="mb-6">
               <label className="block text-gray-400 mb-2">Wholesale Fee (${wholesaleFee.toLocaleString()})</label>
               <input
@@ -909,7 +909,7 @@ export default function Home() {
                   [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#2ecc71]
                   [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-[0_0_10px_rgba(46,204,113,0.5)]"
               />
-            </div>
+        </div>
           </>
         )
     }
@@ -1071,8 +1071,8 @@ export default function Home() {
                     ) : (
                       <span>Add a property link to get started</span>
                     )}
-                  </div>
-                </div>
+          </div>
+        </div>
                 <button
                   onClick={handleClear}
                   className="text-gray-400 hover:text-[#2ecc71] transition-colors"
@@ -1095,20 +1095,20 @@ export default function Home() {
                       className="w-full px-4 py-2 bg-[#0a0a0a] border border-[#2ecc71]/20 rounded text-white
                         focus:outline-none focus:border-[#2ecc71] focus:ring-1 focus:ring-[#2ecc71]"
                     />
-                  </div>
+            </div>
 
                   {renderCalculatorInputs()}
-                </div>
+              </div>
 
                 <div>
                   <div className="bg-[#0a0a0a] rounded-lg p-4 mb-6">
                     <div className="text-center">
                       <div className="text-[#2ecc71] text-3xl font-bold mb-2">
                         ${parseInt(calculateRevenue()).toLocaleString()}
-                      </div>
+            </div>
                       <div className="text-gray-400">{getRevenueLabel()}</div>
-                    </div>
-                  </div>
+            </div>
+          </div>
 
                   <div className="mt-4 rounded-lg overflow-hidden h-64 bg-gray-100">
                     {isMapLoading ? (
@@ -1139,7 +1139,7 @@ export default function Home() {
                         No map available
                       </div>
                     )}
-                  </div>
+        </div>
 
                   <div className="flex flex-wrap gap-4">
                     <button 
@@ -1174,8 +1174,8 @@ export default function Home() {
                       {isLoading ? 'Saving...' : 'Save Analysis'}
                     </button>
                   </div>
-                </div>
-              </div>
+          </div>
+        </div>
             </div>
           ) : (
             <div className="w-full max-w-4xl bg-[#111111] border border-[#2ecc71]/20 rounded-lg p-6 mb-12
@@ -1246,11 +1246,11 @@ export default function Home() {
                 </div>
                 <h3 className="text-xl font-mono font-bold mb-3 text-[#2ecc71]">{feature.title}</h3>
                 <p className="text-gray-400 font-mono text-sm">{feature.description}</p>
-              </div>
+            </div>
             ))}
           </div>
         </div>
-      </div>
+        </div>
 
       {/* Print Styles */}
       <style jsx global>{`

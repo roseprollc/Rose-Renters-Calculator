@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
-import { authOptions } from '@/app/api/auth/[...nextauth]/route'
-import clientPromise, { stringToObjectId } from '@/app/lib/mongodb'
+import { authOptions } from '@/app/api/auth/[...nextauth]/options'
+import { clientPromise, stringToObjectId } from '@/app/lib/mongodb'
 import { ObjectId } from 'mongodb'
 
 // GET an analysis by ID
@@ -12,7 +12,7 @@ export async function GET(
   try {
     const session = await getServerSession(authOptions)
     
-    if (!session?.user?.email) {
+    if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
     
@@ -21,7 +21,7 @@ export async function GET(
     
     const analysis = await db.collection('analyses').findOne({ 
       _id: stringToObjectId(params.id),
-      userEmail: session.user.email
+      userId: session.user.id
     })
     
     if (!analysis) {

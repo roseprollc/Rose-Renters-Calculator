@@ -371,8 +371,8 @@ Generated: ${new Date(analysis.createdAt).toLocaleDateString()}
               <h1 className="text-3xl font-bold text-white">
                 Dashboard
               </h1>
-              
-              <div className="flex items-center gap-4">
+
+            <div className="flex items-center gap-4">
                 <button
                   onClick={() => router.push('/')}
                   className="flex items-center gap-2 px-4 py-2 bg-[#2ecc71] text-black font-bold rounded
@@ -389,13 +389,13 @@ Generated: ${new Date(analysis.createdAt).toLocaleDateString()}
                   <Home className="w-4 h-4" />
                   Back to Calculators
                 </button>
-                
+
                 <div className="relative">
                   <button className="flex items-center gap-2 px-4 py-2 border border-[#2ecc71]/20 text-[#2ecc71] rounded
                     hover:bg-[#2ecc71]/10 transition-all duration-300">
                     <span>{session?.user?.name || 'User'}</span>
                     <ChevronDown className="w-4 h-4" />
-                  </button>
+                    </button>
                 </div>
               </div>
             </div>
@@ -477,7 +477,7 @@ Generated: ${new Date(analysis.createdAt).toLocaleDateString()}
                     <LogOut className="w-5 h-5" />
                     Sign Out
                   </button>
-                </nav>
+            </nav>
               </div>
               
               <div className="flex-1 overflow-auto">

@@ -1,6 +1,6 @@
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "BnB Calculator",
-  description: "Calculate and analyze real estate investments",
+  title: 'Rose Renters Calculator',
+  description: 'Calculate rental property returns and analyze investments',
 } 

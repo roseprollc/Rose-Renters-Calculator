@@ -3,10 +3,23 @@ import { getToken } from 'next-auth/jwt'
 import type { NextRequest } from 'next/server'
 import { hasFeatureAccess } from './app/lib/tiers'
 
+// Define public routes that don't require authentication
+const publicRoutes = ['/', '/login', '/signup', '/api/auth']
+
 export async function middleware(request: NextRequest) {
   const token = await getToken({ req: request })
   const isAuthPage = request.nextUrl.pathname.startsWith('/login') || 
                     request.nextUrl.pathname.startsWith('/signup')
+  const isPublicRoute = publicRoutes.some(route => 
+    request.nextUrl.pathname === route || 
+    request.nextUrl.pathname.startsWith('/_next/') ||
+    request.nextUrl.pathname.startsWith('/api/auth/')
+  )
+
+  // Allow public routes without authentication
+  if (isPublicRoute) {
+    return NextResponse.next()
+  }
 
   // Redirect authenticated users away from auth pages
   if (isAuthPage && token) {
@@ -69,10 +82,13 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/dashboard/:path*',
-    '/api/:path*',
-    '/login',
-    '/signup',
-    '/_next/static/:path*',
+    /*
+     * Match all request paths except for the ones starting with:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - public folder
+     */
+    '/((?!_next/static|_next/image|favicon.ico|public/).*)',
   ],
 }

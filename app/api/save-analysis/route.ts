@@ -1,49 +1,48 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import clientPromise from '@/app/lib/mongodb';
+import { authOptions } from '@/app/api/auth/[...nextauth]/options';
+import { clientPromise } from '@/app/lib/mongodb';
 import { Analysis } from '@/app/types/analysis';
+import { ObjectId } from 'mongodb';
 
-export async function POST(req: Request) {
+export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
+    if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const data = await req.json();
-    const client = await clientPromise;
-    const db = client.db();
+    const data = await request.json();
+    const userId = session.user.id;
 
     // Validate required fields
-    if (!data.type || !data.address) {
+    if (!data.propertyUrl || !data.propertyAddress || !data.propertyPrice) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
       );
     }
 
+    // Connect to MongoDB
+    const client = await clientPromise;
+    const db = client.db();
+
     // Create analysis document
-    const analysis: Omit<Analysis, 'id'> = {
-      type: data.type,
-      address: data.address,
+    const analysis = {
+      ...data,
+      userId,
       createdAt: new Date(),
-      notes: data.notes || '',
-      ...data
+      updatedAt: new Date()
     };
 
-    // Insert into database
-    const result = await db.collection('analyses').insertOne({
-      ...analysis,
-      userId: session.user.email
-    });
+    const result = await db.collection('analyses').insertOne(analysis);
 
     return NextResponse.json({
       id: result.insertedId,
       ...analysis
     });
   } catch (error) {
-    console.error('Error saving analysis:', error);
+    console.error('Save analysis error:', error);
     return NextResponse.json(
       { error: 'Failed to save analysis' },
       { status: 500 }
@@ -51,97 +50,108 @@ export async function POST(req: Request) {
   }
 }
 
-export async function GET(req: Request) {
+export async function GET(request: Request) {
   try {
     const session = await getServerSession(authOptions);
-    
-    if (!session?.user?.email) {
+    if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { searchParams } = new URL(req.url);
-    const type = searchParams.get('type');
-    const search = searchParams.get('search');
-    const sortBy = searchParams.get('sortBy') || 'newest';
+    const userId = session.user.id;
 
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email }
+    // Connect to MongoDB
+    const client = await clientPromise;
+    const db = client.db();
+
+    // Get query parameters
+    const url = new URL(request.url);
+    const searchParams = url.searchParams;
+    const query = searchParams.get('query') || '';
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '10');
+    const skip = (page - 1) * limit;
+
+    // Build search query
+    const searchQuery = query
+      ? {
+          userId,
+          $or: [
+            { propertyAddress: { $regex: query, $options: 'i' } },
+            { propertyUrl: { $regex: query, $options: 'i' } }
+          ]
+        }
+      : { userId };
+
+    // Fetch analyses with pagination
+    const analyses = await db
+      .collection('analyses')
+      .find(searchQuery)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .toArray();
+
+    // Get total count for pagination
+    const total = await db.collection('analyses').countDocuments(searchQuery);
+
+    return NextResponse.json({
+      analyses,
+      total,
+      page,
+      totalPages: Math.ceil(total / limit)
     });
-
-    if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
-    }
-
-    const where = {
-      userId: user.id,
-      ...(type && type !== 'all' ? { type } : {}),
-      ...(search ? {
-        OR: [
-          { propertyAddress: { contains: search, mode: 'insensitive' } },
-          { notes: { contains: search, mode: 'insensitive' } }
-        ]
-      } : {})
-    };
-
-    const analyses = await prisma.analysis.findMany({
-      where,
-      orderBy: {
-        createdAt: sortBy === 'newest' ? 'desc' : 'asc'
-      }
-    });
-
-    return NextResponse.json({ analyses });
-
   } catch (error) {
-    console.error('Error fetching analyses:', error);
-    return NextResponse.json({ 
-      error: 'Failed to fetch analyses',
-      details: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+    console.error('Get analyses error:', error);
+    return NextResponse.json(
+      { error: 'Failed to get analyses' },
+      { status: 500 }
+    );
   }
 }
 
-export async function DELETE(req: Request) {
+export async function DELETE(request: Request) {
   try {
     const session = await getServerSession(authOptions);
-    
-    if (!session?.user?.email) {
+    if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const data = await req.json();
-    const { ids } = data;
+    const userId = session.user.id;
+    const { ids } = await request.json();
 
-    if (!ids || !Array.isArray(ids)) {
-      return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return NextResponse.json(
+        { error: 'Invalid or empty analysis IDs' },
+        { status: 400 }
+      );
     }
 
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email }
-    });
-
-    if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
-    }
+    // Connect to MongoDB
+    const client = await clientPromise;
+    const db = client.db();
 
     // Delete analyses
-    await prisma.analysis.deleteMany({
-      where: {
-        id: { in: ids },
-        userId: user.id
-      }
+    const result = await db.collection('analyses').deleteMany({
+      _id: { $in: ids.map(id => new ObjectId(id)) },
+      userId
     });
 
-    return NextResponse.json({ 
+    if (result.deletedCount === 0) {
+      return NextResponse.json(
+        { error: 'No analyses found to delete' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({
       success: true,
-      message: `Successfully deleted ${ids.length} analyses`
+      deletedCount: result.deletedCount
     });
-
   } catch (error) {
-    console.error('Error deleting analyses:', error);
-    return NextResponse.json({ 
-      error: 'Failed to delete analyses',
-      details: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+    console.error('Delete analyses error:', error);
+    return NextResponse.json(
+      { error: 'Failed to delete analyses' },
+      { status: 500 }
+    );
   }
 } 

@@ -4,10 +4,11 @@ import { DefaultSession } from 'next-auth'
 declare module 'next-auth' {
   interface Session {
     user: {
-      id: string
-      tier: 'free' | 'pro' | 'elite'
-      role?: string
-    } & DefaultSession['user']
+      id: string;
+      email: string;
+      name?: string;
+      subscriptionTier: 'free' | 'pro' | 'elite';
+    }
   }
 
   interface User {
@@ -17,8 +18,14 @@ declare module 'next-auth' {
   }
 
   interface JWT {
-    id: string
-    tier: 'free' | 'pro' | 'elite'
-    role?: string
+    id: string;
+    subscriptionTier: 'free' | 'pro' | 'elite';
+  }
+}
+
+declare module 'next-auth/jwt' {
+  interface JWT {
+    id: string;
+    subscriptionTier: 'free' | 'pro' | 'elite';
   }
 } 

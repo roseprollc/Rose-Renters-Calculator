@@ -1,32 +1,36 @@
 import { NextAuthOptions } from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
 import CredentialsProvider from "next-auth/providers/credentials"
+import { PrismaAdapter } from "@next-auth/prisma-adapter"
+import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
-import { prisma } from "@/app/lib/prisma"
+
+type UserType = {
+  id: string
+  email: string
+  name?: string
+  subscriptionTier: 'free' | 'pro' | 'elite'
+}
 
 declare module "next-auth" {
+  interface User extends UserType {}
+
   interface Session {
-    user: {
-      id: string
-      email?: string | null
-      name?: string | null
-      image?: string | null
-      role?: string
-      subscriptionTier?: string
+    user: User & {
+      subscriptionTier: 'free' | 'pro' | 'elite'
     }
   }
-  
-  interface User {
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
     id: string
-    email?: string | null
-    name?: string | null
-    image?: string | null
-    role?: string
-    subscriptionTier?: string
+    subscriptionTier: 'free' | 'pro' | 'elite'
   }
 }
 
 export const authOptions: NextAuthOptions = {
+  adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -40,7 +44,7 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' },
         mode: { label: 'Mode', type: 'text' }
       },
-      async authorize(credentials) {
+      async authorize(credentials): Promise<UserType | null> {
         if (!credentials?.email || !credentials?.password) {
           throw new Error('Missing credentials');
         }
@@ -80,7 +84,7 @@ export const authOptions: NextAuthOptions = {
           return {
             id: user.id,
             email: user.email,
-            subscriptionTier: user.subscriptionTier
+            subscriptionTier: user.subscriptionTier as 'free' | 'pro' | 'elite'
           };
         }
 
@@ -101,13 +105,13 @@ export const authOptions: NextAuthOptions = {
         return {
           id: user.id,
           email: user.email,
-          subscriptionTier: user.subscriptionTier
+          subscriptionTier: user.subscriptionTier as 'free' | 'pro' | 'elite'
         };
       }
     })
   ],
   session: {
-    strategy: 'jwt',
+    strategy: "jwt" as const,
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   pages: {
@@ -119,14 +123,14 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id
-        token.subscriptionTier = user.subscriptionTier || 'free'
+        token.subscriptionTier = user.subscriptionTier
       }
       return token
     },
     async session({ session, token }) {
-      if (session?.user) {
+      if (session.user) {
         session.user.id = token.id as string
-        session.user.subscriptionTier = token.subscriptionTier as string
+        session.user.subscriptionTier = token.subscriptionTier as 'free' | 'pro' | 'elite'
       }
       return session
     }

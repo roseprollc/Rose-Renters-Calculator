@@ -1,6 +1,8 @@
 "use client"
 
 import { SessionProvider } from 'next-auth/react'
+import { ThemeProvider } from '../components/theme-provider'
+import { Toaster as Sonner } from '../components/ui/sonner'
 
 export default function Providers({
   children,
@@ -9,7 +11,15 @@ export default function Providers({
 }) {
   return (
     <SessionProvider>
-      {children}
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="system"
+        enableSystem
+        disableTransitionOnChange
+      >
+        {children}
+        <Sonner />
+      </ThemeProvider>
     </SessionProvider>
   )
 } 

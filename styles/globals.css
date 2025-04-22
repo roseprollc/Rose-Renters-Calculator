@@ -7,14 +7,14 @@
 
 body {
   font-family: 'VT323', monospace;
-  color: #000000;
-  background-color: #b4fc7f;
+  color: #2ecc71;
+  background-color: #000000;
 }
 
 /* ✅ Ensure dark mode support */
 html.dark {
-  background-color: #0f0f0f;
-  color: #00ff88;
+  background-color: #000000;
+  color: #2ecc71;
 }
 
 /* ✅ Tailwind utility extension */
