@@ -105,7 +105,7 @@ export function AnalysisCard({
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between">
           <div>
-            <CardTitle className="text-green-500 text-lg">{analysis.address}</CardTitle>
+            <CardTitle className="text-green-500 text-lg">{analysis.propertyAddress}</CardTitle>
             <div className="flex items-center gap-2 mt-1">
               <Badge variant="outline" className="bg-green-900 text-green-400 border-green-500">
                 {analysis.type.charAt(0).toUpperCase() + analysis.type.slice(1)}

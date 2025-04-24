@@ -1,3 +1,5 @@
+import { SubscriptionTier } from "./subscription";
+
 export type AnalysisType = 'mortgage' | 'rental' | 'wholesale' | 'airbnb'
 
 export type SortOption = 'newest' | 'oldest' | 'price-high' | 'price-low' | 'revenue-high' | 'revenue-low'
@@ -35,7 +37,7 @@ export interface Analysis {
   type: AnalysisType
   createdAt: string
   updatedAt: string
-  address: string
+  propertyAddress: string
   notes?: string
   aiInsights?: string
   tags: string[]
@@ -95,6 +97,63 @@ export interface Analysis {
 
   digestPreferences?: DigestPreferences
   autoImproveSuggestions?: AutoImproveSuggestion[]
+
+  aiSummary?: string
+  aiInsights?: string
+  aiRecommendations?: string
+  aiRiskAssessment?: string
+  aiMarketAnalysis?: string
+  aiPropertyValue?: string
+  aiRentalIncome?: string
+  aiExpenses?: string
+  aiCashFlow?: string
+  aiRoi?: string
+  aiCapRate?: string
+  aiBreakEven?: string
+  aiDscr?: string
+  aiNotes?: string
+}
+
+export interface RentalAnalysis extends Analysis {
+  mode: 'renters'
+  monthlyRent: number
+  propertyTaxes: number
+  insurance: number
+  maintenance: number
+  vacancyRate: number
+  managementFee: number
+  utilities: number
+  otherExpenses: number
+}
+
+export interface WholesaleAnalysis extends Analysis {
+  mode: 'wholesale'
+  arv: number
+  repairCosts: number
+  holdingCosts: number
+  assignmentFee: number
+  profit: number
+}
+
+export interface AirbnbAnalysis extends Analysis {
+  mode: 'airbnb'
+  nightlyRate: number
+  occupancyRate: number
+  cleaningFee: number
+  platformFees: number
+  monthlyRent: number
+}
+
+export function isRentalAnalysis(analysis: Analysis): analysis is RentalAnalysis {
+  return analysis.mode === 'renters'
+}
+
+export function isWholesaleAnalysis(analysis: Analysis): analysis is WholesaleAnalysis {
+  return analysis.mode === 'wholesale'
+}
+
+export function isAirbnbAnalysis(analysis: Analysis): analysis is AirbnbAnalysis {
+  return analysis.mode === 'airbnb'
 }
 
 // Extend the Session type to include subscriptionTier

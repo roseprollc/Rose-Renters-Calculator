@@ -3,8 +3,7 @@ import { PrismaAdapter } from "@next-auth/prisma-adapter"
 import { prisma } from "@/lib/prisma"
 import CredentialsProvider from "next-auth/providers/credentials"
 import GoogleProvider from "next-auth/providers/google"
-import bcrypt from "bcryptjs"
-import { User } from "next-auth"
+import { compare } from "bcrypt"
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -18,8 +17,6 @@ export const authOptions: NextAuthOptions = {
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
-        name: { label: "Name", type: "text" },
-        mode: { label: "Mode", type: "text" },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
@@ -28,50 +25,23 @@ export const authOptions: NextAuthOptions = {
 
         const user = await prisma.user.findUnique({
           where: { email: credentials.email },
-          select: {
-            id: true,
-            email: true,
-            name: true,
-            password: true,
-            subscriptionTier: true,
-          },
         })
 
-        if (credentials.mode === "signup") {
-          if (user) {
-            throw new Error("User already exists")
-          }
-
-          const hashedPassword = await bcrypt.hash(credentials.password, 10)
-          const newUser = await prisma.user.create({
-            data: {
-              email: credentials.email,
-              name: credentials.name || null,
-              password: hashedPassword,
-              subscriptionTier: "free",
-            },
-            select: {
-              id: true,
-              email: true,
-              name: true,
-              subscriptionTier: true,
-            },
-          })
-
-          return newUser as User
-        }
-
         if (!user || !user.password) {
-          throw new Error("Invalid login")
+          throw new Error("Invalid credentials")
         }
 
-        const isValid = await bcrypt.compare(credentials.password, user.password)
+        const isValid = await compare(credentials.password, user.password)
+
         if (!isValid) {
-          throw new Error("Invalid login")
+          throw new Error("Invalid credentials")
         }
 
-        const { password: _, ...userWithoutPassword } = user
-        return userWithoutPassword as User
+        return {
+          id: user.id,
+          email: user.email!,
+          subscriptionTier: user.subscriptionTier
+        }
       },
     }),
   ],
@@ -82,17 +52,15 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id
-        token.email = user.email
-        token.name = user.name
+        token.email = user.email!
         token.subscriptionTier = user.subscriptionTier
       }
       return token
     },
     async session({ session, token }) {
-      if (session.user && token) {
-        session.user.id = token.id
-        session.user.email = token.email
-        session.user.name = token.name
+      if (session.user) {
+        session.user.id = token.id as string
+        session.user.email = token.email as string
         session.user.subscriptionTier = token.subscriptionTier
       }
       return session

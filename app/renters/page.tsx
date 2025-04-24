@@ -3,10 +3,11 @@
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, Calculator, DollarSign, Percent } from 'lucide-react'
-import PageLayout from '../components/PageLayout'
-import GPTInsight from '../components/GPTInsight'
+// import GPTInsight from '../components/GPTInsight'
+// import PageLayout from '../components/PageLayout'
 import { extractAddressFromUrl } from '../../utils/url'
 import { toast } from 'react-hot-toast'
+import SafeHydrate from '../components/utils/SafeHydrate'
 
 export default function RentalCalculatorPage() {
   const [propertyUrl, setPropertyUrl] = useState("")
@@ -286,386 +287,357 @@ export default function RentalCalculatorPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-[#2ecc71] p-8">
-      <div className="max-w-4xl mx-auto">
-        {/* Logo and Title */}
-        <div className="flex items-center gap-4 mb-12">
-          <Link href="/" className="text-[#2ecc71]">
-            <ArrowLeft className="w-6 h-6" />
-          </Link>
-          <h1 className="text-4xl font-mono">RoseIntel</h1>
-        </div>
-
-        <h2 className="text-5xl font-mono mb-12">Rental Property Analyzer</h2>
-
-        {/* Smart Import */}
-        <div className="mb-12">
-          <div className="flex gap-4 mb-2">
-            <input
-              type="text"
-              value={propertyUrl}
-              onChange={(e) => setPropertyUrl(e.target.value)}
-              placeholder="Paste Zillow, Redfin, or MLS link here"
-              className="flex-1 bg-black border border-[#2ecc71] px-4 py-3 font-mono text-white placeholder-gray-500"
-            />
-            <button
-              onClick={handleSmartImport}
-              disabled={isLoading}
-              className="px-8 py-3 bg-[#2ecc71] text-black font-mono font-bold hover:bg-[#27ae60] disabled:opacity-50"
-            >
-              {isLoading ? 'Importing...' : 'Smart Import'}
-            </button>
+    <SafeHydrate>
+      <div className="min-h-screen bg-black text-[#2ecc71] p-8">
+        <div className="max-w-4xl mx-auto">
+          {/* Logo and Title */}
+          <div className="flex items-center gap-4 mb-12">
+            <Link href="/" className="text-[#2ecc71]">
+              <ArrowLeft className="w-6 h-6" />
+            </Link>
+            <h1 className="text-4xl font-mono">RoseIntel</h1>
           </div>
-          {error && <p className="text-red-500 font-mono">{error}</p>}
-        </div>
 
-        {/* Calculator Form */}
-        <div className="space-y-8 mb-12">
-          <div>
-            <label className="block text-3xl font-mono mb-4">Property price</label>
-            <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl">$</span>
+          <h2 className="text-5xl font-mono mb-12">Rental Property Analyzer</h2>
+
+          {/* Smart Import */}
+          <div className="mb-12">
+            <div className="flex gap-4 mb-2">
               <input
-                type="number"
-                value={propertyPrice}
-                onChange={(e) => handlePropertyPriceChange(Number(e.target.value))}
-                className="w-full bg-black border border-[#2ecc71] px-12 py-4 text-2xl font-mono"
+                type="text"
+                value={propertyUrl}
+                onChange={(e) => setPropertyUrl(e.target.value)}
+                placeholder="Paste Zillow, Redfin, or MLS link here"
+                className="flex-1 bg-black border border-[#2ecc71] px-4 py-3 font-mono text-white placeholder-gray-500"
               />
+              <button
+                onClick={handleSmartImport}
+                disabled={isLoading}
+                className="px-8 py-3 bg-[#2ecc71] text-black font-mono font-bold hover:bg-[#27ae60] disabled:opacity-50"
+              >
+                {isLoading ? 'Importing...' : 'Smart Import'}
+              </button>
             </div>
+            {error && <p className="text-red-500 font-mono">{error}</p>}
           </div>
 
-          <div>
-            <label className="block text-3xl font-mono mb-4">Down payment</label>
-            <div className="grid grid-cols-2 gap-4">
+          {/* Calculator Form */}
+          <div className="space-y-8 mb-12">
+            <div>
+              <label className="block text-3xl font-mono mb-4">Property price</label>
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl">$</span>
+                <input
+                  type="number"
+                  value={propertyPrice}
+                  onChange={(e) => handlePropertyPriceChange(Number(e.target.value))}
+                  className="w-full bg-black border border-[#2ecc71] px-12 py-4 text-2xl font-mono"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-3xl font-mono mb-4">Down payment</label>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl">%</span>
+                  <input
+                    type="number"
+                    value={downPaymentPercent}
+                    onChange={(e) => handleDownPaymentPercentChange(Number(e.target.value))}
+                    className="w-full bg-black border border-[#2ecc71] px-12 py-4 text-2xl font-mono"
+                  />
+                </div>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl">$</span>
+                  <input
+                    type="number"
+                    value={downPayment}
+                    onChange={(e) => handleDownPaymentChange(Number(e.target.value))}
+                    className="w-full bg-black border border-[#2ecc71] px-12 py-4 text-2xl font-mono"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-3xl font-mono mb-4">Interest rate</label>
               <div className="relative">
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl">%</span>
                 <input
                   type="number"
-                  value={downPaymentPercent}
-                  onChange={(e) => handleDownPaymentPercentChange(Number(e.target.value))}
+                  value={interestRate}
+                  onChange={(e) => setInterestRate(Number(e.target.value))}
                   className="w-full bg-black border border-[#2ecc71] px-12 py-4 text-2xl font-mono"
-                />
-              </div>
-              <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl">$</span>
-                <input
-                  type="number"
-                  value={downPayment}
-                  onChange={(e) => handleDownPaymentChange(Number(e.target.value))}
-                  className="w-full bg-black border border-[#2ecc71] px-12 py-4 text-2xl font-mono"
+                  step="0.1"
                 />
               </div>
             </div>
-          </div>
 
-          <div>
-            <label className="block text-3xl font-mono mb-4">Interest rate</label>
-            <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl">%</span>
-              <input
-                type="number"
-                value={interestRate}
-                onChange={(e) => setInterestRate(Number(e.target.value))}
-                className="w-full bg-black border border-[#2ecc71] px-12 py-4 text-2xl font-mono"
-                step="0.1"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-3xl font-mono mb-4">Monthly rent</label>
-            <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl">$</span>
-              <input
-                type="number"
-                value={monthlyRent}
-                onChange={(e) => setMonthlyRent(Number(e.target.value))}
-                className="w-full bg-black border border-[#2ecc71] px-12 py-4 text-2xl font-mono"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xl font-mono mb-4">Property taxes (annual)</label>
+              <label className="block text-3xl font-mono mb-4">Monthly rent</label>
               <div className="relative">
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl">$</span>
                 <input
                   type="number"
-                  value={propertyTaxes}
-                  onChange={(e) => setPropertyTaxes(Number(e.target.value))}
+                  value={monthlyRent}
+                  onChange={(e) => setMonthlyRent(Number(e.target.value))}
                   className="w-full bg-black border border-[#2ecc71] px-12 py-4 text-2xl font-mono"
                 />
               </div>
             </div>
-            <div>
-              <label className="block text-xl font-mono mb-4">Insurance (annual)</label>
-              <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl">$</span>
-                <input
-                  type="number"
-                  value={insurance}
-                  onChange={(e) => setInsurance(Number(e.target.value))}
-                  className="w-full bg-black border border-[#2ecc71] px-12 py-4 text-2xl font-mono"
-                />
-              </div>
-            </div>
-          </div>
 
-          <div className="grid grid-cols-3 gap-4">
-            <div>
-              <label className="block text-xl font-mono mb-4">HOA (monthly)</label>
-              <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl">$</span>
-                <input
-                  type="number"
-                  value={hoaFees}
-                  onChange={(e) => setHoaFees(Number(e.target.value))}
-                  className="w-full bg-black border border-[#2ecc71] px-12 py-4 text-2xl font-mono"
-                />
-              </div>
-            </div>
-            <div>
-              <label className="block text-xl font-mono mb-4">Maintenance</label>
-              <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl">$</span>
-                <input
-                  type="number"
-                  value={maintenance}
-                  onChange={(e) => setMaintenance(Number(e.target.value))}
-                  className="w-full bg-black border border-[#2ecc71] px-12 py-4 text-2xl font-mono"
-                />
-              </div>
-            </div>
-            <div>
-              <label className="block text-xl font-mono mb-4">Property Mgmt</label>
-              <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl">$</span>
-                <input
-                  type="number"
-                  value={propertyManagement}
-                  onChange={(e) => setPropertyManagement(Number(e.target.value))}
-                  className="w-full bg-black border border-[#2ecc71] px-12 py-4 text-2xl font-mono"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* PMI Field */}
-          <div>
-            <label className="block text-xl font-mono mb-4">PMI (monthly)</label>
-            <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl">$</span>
-              <input
-                type="number"
-                value={pmiAmount}
-                onChange={(e) => setPmiAmount(Number(e.target.value))}
-                className="w-full bg-black border border-[#2ecc71] px-12 py-4 text-2xl font-mono"
-                step="1"
-                placeholder="Monthly PMI payment"
-              />
-            </div>
-            {downPaymentPercent < 20 && (
-              <p className="text-sm font-mono mt-2 text-gray-400">
-                PMI is typically required when down payment is less than 20%. Contact your lender for exact amount.
-              </p>
-            )}
-          </div>
-
-          <button
-            onClick={handleCalculate}
-            disabled={isCalculating}
-            className="w-48 py-4 border border-[#2ecc71] text-2xl font-mono hover:bg-[#2ecc71] hover:text-black transition-colors disabled:opacity-50"
-          >
-            {isCalculating ? 'Calculating...' : 'Calculate'}
-          </button>
-        </div>
-
-        {/* Results */}
-        <div id="results" className={`mb-12 transition-opacity duration-500 ${showResults ? 'opacity-100' : 'opacity-0'}`}>
-          <h3 className="text-3xl font-mono mb-4">Monthly Payment</h3>
-          <div className="text-6xl font-mono">${analytics.monthlyPayment.toFixed(2)}</div>
-          
-          {/* Analytics Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-8">
-            <div className="bg-[#111111] border border-[#2ecc71]/20 p-6">
-              <h4 className="text-lg font-mono mb-2">Monthly Cash Flow</h4>
-              <p className="text-2xl font-mono truncate">${analytics.monthlyCashFlow.toFixed(2)}</p>
-            </div>
-            <div className="bg-[#111111] border border-[#2ecc71]/20 p-6">
-              <h4 className="text-lg font-mono mb-2">Annual Cash Flow</h4>
-              <p className="text-2xl font-mono truncate">${analytics.annualCashFlow.toFixed(2)}</p>
-            </div>
-            <div className="bg-[#111111] border border-[#2ecc71]/20 p-6">
-              <h4 className="text-lg font-mono mb-2">Cap Rate</h4>
-              <p className="text-2xl font-mono truncate">{analytics.capRate.toFixed(2)}%</p>
-            </div>
-            <div className="bg-[#111111] border border-[#2ecc71]/20 p-6">
-              <h4 className="text-lg font-mono mb-2">Cash-on-Cash</h4>
-              <p className="text-2xl font-mono truncate">{analytics.cashOnCashReturn.toFixed(2)}%</p>
-            </div>
-          </div>
-
-          {/* Analytics Table */}
-          <div className="mt-8 bg-[#111111] border border-[#2ecc71]/20 rounded-lg overflow-hidden">
-            <table className="w-full">
-              <thead className="bg-[#2ecc71]/10">
-                <tr>
-                  <th className="text-left p-4 font-mono">Type</th>
-                  <th className="text-right p-4 font-mono">Monthly</th>
-                  <th className="text-right p-4 font-mono">Annual</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr className="border-t border-[#2ecc71]/10">
-                  <td className="p-4 font-mono">Mortgage</td>
-                  <td className="p-4 font-mono text-right">${analytics.expenseBreakdown.mortgage.toFixed(2)}</td>
-                  <td className="p-4 font-mono text-right">${(analytics.expenseBreakdown.mortgage * 12).toFixed(2)}</td>
-                </tr>
-                {analytics.expenseBreakdown.pmi > 0 && (
-                  <tr className="border-t border-[#2ecc71]/10">
-                    <td className="p-4 font-mono">PMI</td>
-                    <td className="p-4 font-mono text-right">${analytics.expenseBreakdown.pmi.toFixed(2)}</td>
-                    <td className="p-4 font-mono text-right">${(analytics.expenseBreakdown.pmi * 12).toFixed(2)}</td>
-                  </tr>
-                )}
-                <tr className="border-t border-[#2ecc71]/10">
-                  <td className="p-4 font-mono">Property Taxes</td>
-                  <td className="p-4 font-mono text-right">${analytics.expenseBreakdown.taxes.toFixed(2)}</td>
-                  <td className="p-4 font-mono text-right">${(analytics.expenseBreakdown.taxes * 12).toFixed(2)}</td>
-                </tr>
-                <tr className="border-t border-[#2ecc71]/10">
-                  <td className="p-4 font-mono">Insurance</td>
-                  <td className="p-4 font-mono text-right">${analytics.expenseBreakdown.insurance.toFixed(2)}</td>
-                  <td className="p-4 font-mono text-right">${(analytics.expenseBreakdown.insurance * 12).toFixed(2)}</td>
-                </tr>
-                {hoaFees > 0 && (
-                  <tr className="border-t border-[#2ecc71]/10">
-                    <td className="p-4 font-mono">HOA</td>
-                    <td className="p-4 font-mono text-right">${analytics.expenseBreakdown.hoa.toFixed(2)}</td>
-                    <td className="p-4 font-mono text-right">${(analytics.expenseBreakdown.hoa * 12).toFixed(2)}</td>
-                  </tr>
-                )}
-                <tr className="border-t border-[#2ecc71]/10">
-                  <td className="p-4 font-mono">Maintenance</td>
-                  <td className="p-4 font-mono text-right">${analytics.expenseBreakdown.maintenance.toFixed(2)}</td>
-                  <td className="p-4 font-mono text-right">${(analytics.expenseBreakdown.maintenance * 12).toFixed(2)}</td>
-                </tr>
-                {propertyManagement > 0 && (
-                  <tr className="border-t border-[#2ecc71]/10">
-                    <td className="p-4 font-mono">Property Management</td>
-                    <td className="p-4 font-mono text-right">${analytics.expenseBreakdown.propertyManagement.toFixed(2)}</td>
-                    <td className="p-4 font-mono text-right">${(analytics.expenseBreakdown.propertyManagement * 12).toFixed(2)}</td>
-                  </tr>
-                )}
-                <tr className="border-t border-[#2ecc71]/10 bg-[#2ecc71]/5">
-                  <td className="p-4 font-mono font-bold">Gross Income</td>
-                  <td className="p-4 font-mono text-right font-bold">${analytics.expenseBreakdown.grossIncome.toFixed(2)}</td>
-                  <td className="p-4 font-mono text-right font-bold">${(analytics.expenseBreakdown.grossIncome * 12).toFixed(2)}</td>
-                </tr>
-                <tr className="border-t border-[#2ecc71]/10 bg-[#2ecc71]/10">
-                  <td className="p-4 font-mono font-bold">Net Profit</td>
-                  <td className="p-4 font-mono text-right font-bold">${analytics.expenseBreakdown.netProfit.toFixed(2)}</td>
-                  <td className="p-4 font-mono text-right font-bold">${(analytics.expenseBreakdown.netProfit * 12).toFixed(2)}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          {/* GPT Insights */}
-          <div className="mt-8">
-            <GPTInsight
-              calculatorType="rental"
-              formData={{
-                propertyPrice,
-                downPayment,
-                downPaymentPercent,
-                interestRate,
-                monthlyRent,
-                propertyTaxes,
-                insurance,
-                hoaFees,
-                maintenance,
-                utilities,
-                propertyManagement,
-                pmiAmount,
-                analytics: {
-                  monthlyPayment: analytics.monthlyPayment,
-                  monthlyCashFlow: analytics.monthlyCashFlow,
-                  annualCashFlow: analytics.annualCashFlow,
-                  capRate: analytics.capRate,
-                  cashOnCashReturn: analytics.cashOnCashReturn,
-                  breakEvenRent: analytics.breakEvenRent,
-                  expenseBreakdown: analytics.expenseBreakdown
-                }
-              }}
-              autoRun={false}
-            />
-          </div>
-
-          {/* Break-even Analysis */}
-          <div className="mt-8 bg-[#111111] border border-[#2ecc71]/20 p-6 rounded-lg">
-            <h4 className="text-xl font-mono mb-2">Break-even Rent</h4>
-            <p className="text-4xl font-mono">${analytics.breakEvenRent.toFixed(2)}/month</p>
-            <p className="text-sm font-mono mt-2 text-gray-400">
-              This is the minimum monthly rent needed to cover all expenses
-            </p>
-          </div>
-
-          {/* Save Analysis Button */}
-          <div className="mt-8">
-            <button
-              onClick={handleSaveAnalysis}
-              disabled={!isAuthenticated}
-              className="w-full py-4 border border-[#2ecc71] text-xl font-mono hover:bg-[#2ecc71] hover:text-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isAuthenticated ? 'Save Analysis' : 'Login to Save Analysis'}
-            </button>
-          </div>
-        </div>
-
-        {/* Property Preview */}
-        <div className="mb-12">
-          <h3 className="text-3xl font-mono mb-6">Property Preview</h3>
-          <div className="bg-[#111111] rounded-lg overflow-hidden">
-            <div className="aspect-video relative bg-[#111111]">
-              {propertyData?.image ? (
-                <img
-                  src={propertyData.image}
-                  alt="Property"
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="absolute inset-0 flex items-center justify-center text-gray-600">
-                  Import a property to view preview
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xl font-mono mb-4">Property taxes (annual)</label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl">$</span>
+                  <input
+                    type="number"
+                    value={propertyTaxes}
+                    onChange={(e) => setPropertyTaxes(Number(e.target.value))}
+                    className="w-full bg-black border border-[#2ecc71] px-12 py-4 text-2xl font-mono"
+                  />
                 </div>
+              </div>
+              <div>
+                <label className="block text-xl font-mono mb-4">Insurance (annual)</label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl">$</span>
+                  <input
+                    type="number"
+                    value={insurance}
+                    onChange={(e) => setInsurance(Number(e.target.value))}
+                    className="w-full bg-black border border-[#2ecc71] px-12 py-4 text-2xl font-mono"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <label className="block text-xl font-mono mb-4">HOA (monthly)</label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl">$</span>
+                  <input
+                    type="number"
+                    value={hoaFees}
+                    onChange={(e) => setHoaFees(Number(e.target.value))}
+                    className="w-full bg-black border border-[#2ecc71] px-12 py-4 text-2xl font-mono"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-xl font-mono mb-4">Maintenance</label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl">$</span>
+                  <input
+                    type="number"
+                    value={maintenance}
+                    onChange={(e) => setMaintenance(Number(e.target.value))}
+                    className="w-full bg-black border border-[#2ecc71] px-12 py-4 text-2xl font-mono"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-xl font-mono mb-4">Property Mgmt</label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl">$</span>
+                  <input
+                    type="number"
+                    value={propertyManagement}
+                    onChange={(e) => setPropertyManagement(Number(e.target.value))}
+                    className="w-full bg-black border border-[#2ecc71] px-12 py-4 text-2xl font-mono"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* PMI Field */}
+            <div>
+              <label className="block text-xl font-mono mb-4">PMI (monthly)</label>
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl">$</span>
+                <input
+                  type="number"
+                  value={pmiAmount}
+                  onChange={(e) => setPmiAmount(Number(e.target.value))}
+                  className="w-full bg-black border border-[#2ecc71] px-12 py-4 text-2xl font-mono"
+                  step="1"
+                  placeholder="Monthly PMI payment"
+                />
+              </div>
+              {downPaymentPercent < 20 && (
+                <p className="text-sm font-mono mt-2 text-gray-400">
+                  PMI is typically required when down payment is less than 20%. Contact your lender for exact amount.
+                </p>
               )}
             </div>
+
+            <button
+              onClick={handleCalculate}
+              disabled={isCalculating}
+              className="w-48 py-4 border border-[#2ecc71] text-2xl font-mono hover:bg-[#2ecc71] hover:text-black transition-colors disabled:opacity-50"
+            >
+              {isCalculating ? 'Calculating...' : 'Calculate'}
+            </button>
+          </div>
+
+          {/* Results */}
+          <div id="results" className={`mb-12 transition-opacity duration-500 ${showResults ? 'opacity-100' : 'opacity-0'}`}>
+            <h3 className="text-3xl font-mono mb-4">Monthly Payment</h3>
+            <div className="text-6xl font-mono">${analytics.monthlyPayment.toFixed(2)}</div>
+            
+            {/* Analytics Cards */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-8">
+              <div className="bg-[#111111] border border-[#2ecc71]/20 p-6">
+                <h4 className="text-lg font-mono mb-2">Monthly Cash Flow</h4>
+                <p className="text-2xl font-mono truncate">${analytics.monthlyCashFlow.toFixed(2)}</p>
+              </div>
+              <div className="bg-[#111111] border border-[#2ecc71]/20 p-6">
+                <h4 className="text-lg font-mono mb-2">Annual Cash Flow</h4>
+                <p className="text-2xl font-mono truncate">${analytics.annualCashFlow.toFixed(2)}</p>
+              </div>
+              <div className="bg-[#111111] border border-[#2ecc71]/20 p-6">
+                <h4 className="text-lg font-mono mb-2">Cap Rate</h4>
+                <p className="text-2xl font-mono truncate">{analytics.capRate.toFixed(2)}%</p>
+              </div>
+              <div className="bg-[#111111] border border-[#2ecc71]/20 p-6">
+                <h4 className="text-lg font-mono mb-2">Cash-on-Cash</h4>
+                <p className="text-2xl font-mono truncate">{analytics.cashOnCashReturn.toFixed(2)}%</p>
+              </div>
+            </div>
+
+            {/* Analytics Table */}
+            <div className="mt-8 bg-[#111111] border border-[#2ecc71]/20 rounded-lg overflow-hidden">
+              <table className="w-full">
+                <thead className="bg-[#2ecc71]/10">
+                  <tr>
+                    <th className="text-left p-4 font-mono">Type</th>
+                    <th className="text-right p-4 font-mono">Monthly</th>
+                    <th className="text-right p-4 font-mono">Annual</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="border-t border-[#2ecc71]/10">
+                    <td className="p-4 font-mono">Mortgage</td>
+                    <td className="p-4 font-mono text-right">${analytics.expenseBreakdown.mortgage.toFixed(2)}</td>
+                    <td className="p-4 font-mono text-right">${(analytics.expenseBreakdown.mortgage * 12).toFixed(2)}</td>
+                  </tr>
+                  {analytics.expenseBreakdown.pmi > 0 && (
+                    <tr className="border-t border-[#2ecc71]/10">
+                      <td className="p-4 font-mono">PMI</td>
+                      <td className="p-4 font-mono text-right">${analytics.expenseBreakdown.pmi.toFixed(2)}</td>
+                      <td className="p-4 font-mono text-right">${(analytics.expenseBreakdown.pmi * 12).toFixed(2)}</td>
+                    </tr>
+                  )}
+                  <tr className="border-t border-[#2ecc71]/10">
+                    <td className="p-4 font-mono">Property Taxes</td>
+                    <td className="p-4 font-mono text-right">${analytics.expenseBreakdown.taxes.toFixed(2)}</td>
+                    <td className="p-4 font-mono text-right">${(analytics.expenseBreakdown.taxes * 12).toFixed(2)}</td>
+                  </tr>
+                  <tr className="border-t border-[#2ecc71]/10">
+                    <td className="p-4 font-mono">Insurance</td>
+                    <td className="p-4 font-mono text-right">${analytics.expenseBreakdown.insurance.toFixed(2)}</td>
+                    <td className="p-4 font-mono text-right">${(analytics.expenseBreakdown.insurance * 12).toFixed(2)}</td>
+                  </tr>
+                  {hoaFees > 0 && (
+                    <tr className="border-t border-[#2ecc71]/10">
+                      <td className="p-4 font-mono">HOA</td>
+                      <td className="p-4 font-mono text-right">${analytics.expenseBreakdown.hoa.toFixed(2)}</td>
+                      <td className="p-4 font-mono text-right">${(analytics.expenseBreakdown.hoa * 12).toFixed(2)}</td>
+                    </tr>
+                  )}
+                  <tr className="border-t border-[#2ecc71]/10">
+                    <td className="p-4 font-mono">Maintenance</td>
+                    <td className="p-4 font-mono text-right">${analytics.expenseBreakdown.maintenance.toFixed(2)}</td>
+                    <td className="p-4 font-mono text-right">${(analytics.expenseBreakdown.maintenance * 12).toFixed(2)}</td>
+                  </tr>
+                  {propertyManagement > 0 && (
+                    <tr className="border-t border-[#2ecc71]/10">
+                      <td className="p-4 font-mono">Property Management</td>
+                      <td className="p-4 font-mono text-right">${analytics.expenseBreakdown.propertyManagement.toFixed(2)}</td>
+                      <td className="p-4 font-mono text-right">${(analytics.expenseBreakdown.propertyManagement * 12).toFixed(2)}</td>
+                    </tr>
+                  )}
+                  <tr className="border-t border-[#2ecc71]/10 bg-[#2ecc71]/5">
+                    <td className="p-4 font-mono font-bold">Gross Income</td>
+                    <td className="p-4 font-mono text-right font-bold">${analytics.expenseBreakdown.grossIncome.toFixed(2)}</td>
+                    <td className="p-4 font-mono text-right font-bold">${(analytics.expenseBreakdown.grossIncome * 12).toFixed(2)}</td>
+                  </tr>
+                  <tr className="border-t border-[#2ecc71]/10 bg-[#2ecc71]/10">
+                    <td className="p-4 font-mono font-bold">Net Profit</td>
+                    <td className="p-4 font-mono text-right font-bold">${analytics.expenseBreakdown.netProfit.toFixed(2)}</td>
+                    <td className="p-4 font-mono text-right font-bold">${(analytics.expenseBreakdown.netProfit * 12).toFixed(2)}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            {/* Break-even Analysis */}
+            <div className="mt-8 bg-[#111111] border border-[#2ecc71]/20 p-6 rounded-lg">
+              <h4 className="text-xl font-mono mb-2">Break-even Rent</h4>
+              <p className="text-4xl font-mono">${analytics.breakEvenRent.toFixed(2)}/month</p>
+              <p className="text-sm font-mono mt-2 text-gray-400">
+                This is the minimum monthly rent needed to cover all expenses
+              </p>
+            </div>
+
+            {/* Save Analysis Button */}
+            <div className="mt-8">
+              <button
+                onClick={handleSaveAnalysis}
+                disabled={!isAuthenticated}
+                className="w-full py-4 border border-[#2ecc71] text-xl font-mono hover:bg-[#2ecc71] hover:text-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isAuthenticated ? 'Save Analysis' : 'Login to Save Analysis'}
+              </button>
+            </div>
+          </div>
+
+          {/* Property Preview */}
+          <div className="mb-12">
+            <h3 className="text-3xl font-mono mb-6">Property Preview</h3>
+            <div className="bg-[#111111] rounded-lg overflow-hidden">
+              <div className="aspect-video relative bg-[#111111]">
+                {propertyData?.image ? (
+                  <img
+                    src={propertyData.image}
+                    alt="Property"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center text-gray-600">
+                    Import a property to view preview
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Navigation */}
+          <div className="grid grid-cols-3 gap-4">
+            <Link
+              href="/calculator"
+              className="py-4 border border-[#2ecc71] text-2xl font-mono text-center hover:bg-[#2ecc71] hover:text-black transition-colors"
+            >
+              Mortgage
+            </Link>
+            <Link
+              href="/airbnb"
+              className="py-4 border border-[#2ecc71] text-2xl font-mono text-center hover:bg-[#2ecc71] hover:text-black transition-colors"
+            >
+              Airbnb
+            </Link>
+            <Link
+              href="/wholesale"
+              className="py-4 border border-[#2ecc71] text-2xl font-mono text-center hover:bg-[#2ecc71] hover:text-black transition-colors"
+            >
+              Wholesale
+            </Link>
           </div>
         </div>
-
-        {/* Navigation */}
-        <div className="grid grid-cols-3 gap-4">
-          <Link
-            href="/calculator"
-            className="py-4 border border-[#2ecc71] text-2xl font-mono text-center hover:bg-[#2ecc71] hover:text-black transition-colors"
-          >
-            Mortgage
-          </Link>
-          <Link
-            href="/airbnb"
-            className="py-4 border border-[#2ecc71] text-2xl font-mono text-center hover:bg-[#2ecc71] hover:text-black transition-colors"
-          >
-            Airbnb
-          </Link>
-          <Link
-            href="/wholesale"
-            className="py-4 border border-[#2ecc71] text-2xl font-mono text-center hover:bg-[#2ecc71] hover:text-black transition-colors"
-          >
-            Wholesale
-          </Link>
-        </div>
       </div>
-    </div>
+    </SafeHydrate>
   )
 } 

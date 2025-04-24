@@ -5,7 +5,7 @@ import { formatCurrency, formatDate } from '@/app/lib/utils'
 import { Analysis } from '@/app/types/analysis'
 import { Button } from '@/app/components/ui/button'
 import { Checkbox } from '@/app/components/ui/checkbox'
-import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/app/components/ui/card'
 import { Trash2, Download, Brain, Loader2, ChevronDown, ChevronUp } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/app/components/ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/app/components/ui/tabs'
@@ -109,7 +109,7 @@ export function AnalysisCard({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          analysisId: analysis._id,
+          analysisId: analysis.id,
           address: analysis.propertyAddress,
           type: analysis.type,
           metrics,

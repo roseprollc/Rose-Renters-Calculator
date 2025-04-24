@@ -1,0 +1,4 @@
+#!/bin/sh
+pkill -f 'node|next' || true
+rm -rf .next/cache
+mkdir -p .next/cache/{webpack,autodll} 

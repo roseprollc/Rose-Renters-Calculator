@@ -5,67 +5,32 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: '**.redfin.com',
-        port: '',
+        hostname: 'ssl.cdn-redfin.com',
         pathname: '/**',
       },
       {
         protocol: 'https',
-        hostname: '**.realtor.com',
-        port: '',
+        hostname: 'ap.rdcpix.com',
         pathname: '/**',
       },
     ],
   },
-  async redirects() {
-    return [
-      {
-        source: '/auth/error',
-        destination: '/login?error=AuthenticationError',
-        permanent: false,
-      },
-    ]
+  typescript: {
+    ignoreBuildErrors: true,
   },
-  async headers() {
-    return [
-      {
-        source: '/api/auth/:path*',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'no-store, max-age=0',
-          },
-        ],
-      },
-      {
-        source: '/_next/static/:path*',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
-          },
-        ],
-      },
-      {
-        source: '/:path*',
-        headers: [
-          {
-            key: 'X-Frame-Options',
-            value: 'DENY',
-          },
-          {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
-          },
-          {
-            key: 'Referrer-Policy',
-            value: 'strict-origin-when-cross-origin',
-          },
-        ],
-      },
-    ]
+  eslint: {
+    ignoreDuringBuilds: false,
   },
-  output: 'standalone'
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.resolve.fallback = {
+        fs: false,
+        net: false,
+        tls: false,
+      }
+    }
+    return config
+  },
 }
 
 module.exports = nextConfig

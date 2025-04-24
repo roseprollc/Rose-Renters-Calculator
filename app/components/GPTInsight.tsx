@@ -26,8 +26,7 @@ export default function GPTInsight({
   // Helper to determine user tier
   const getUserTier = () => {
     if (!session?.user) return 'free'
-    // TODO: Implement actual tier logic based on JWT/session
-    return session.user.tier || 'free'
+    return session.user.subscriptionTier || 'free'
   }
 
   const tier = getUserTier()

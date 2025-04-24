@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import { 
   Dialog, 
@@ -77,79 +79,81 @@ export function CompareModal({ analyses, onClose }: CompareModalProps) {
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-[90vw] max-h-[90vh]">
-        <DialogHeader>
-          <DialogTitle>Compare Analyses</DialogTitle>
-        </DialogHeader>
-        
-        <div className="h-[calc(90vh-8rem)] overflow-y-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
-            {analyses.map((analysis) => {
-              const metrics = getKeyMetrics(analysis);
-              const bestAnalysis = findBestValue(analyses, metrics[0]?.label.toLowerCase() || '');
-              
-              return (
-                <div 
-                  key={analysis.id}
-                  className={`p-4 rounded-lg border ${
-                    analysis.id === bestAnalysis.id ? 'border-green-500 bg-green-50' : 'border-gray-200'
-                  }`}
-                >
-                  <div className="space-y-4">
-                    <div>
-                      <h3 className="font-semibold">{analysis.address}</h3>
-                      <p className="text-sm text-gray-500">
-                        {formatDate(analysis.createdAt)}
-                      </p>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      {metrics.map((metric) => (
-                        <div key={metric.label} className="flex justify-between">
-                          <span className="text-sm font-medium">{metric.label}:</span>
-                          <span className="text-sm">
-                            {typeof metric.value === 'number' 
-                              ? formatCurrency(metric.value)
-                              : metric.value}
-                          </span>
+    <ErrorBoundary>
+      <Dialog open={open} onOpenChange={handleClose}>
+        <DialogContent className="max-w-[90vw] max-h-[90vh]">
+          <DialogHeader>
+            <DialogTitle>Compare Analyses</DialogTitle>
+          </DialogHeader>
+          
+          <div className="h-[calc(90vh-8rem)] overflow-y-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+              {analyses.map((analysis) => {
+                const metrics = getKeyMetrics(analysis);
+                const bestAnalysis = findBestValue(analyses, metrics[0]?.label.toLowerCase() || '');
+                
+                return (
+                  <div 
+                    key={analysis.id}
+                    className={`p-4 rounded-lg border ${
+                      analysis.id === bestAnalysis.id ? 'border-green-500 bg-green-50' : 'border-gray-200'
+                    }`}
+                  >
+                    <div className="space-y-4">
+                      <div>
+                        <h3 className="font-semibold">{analysis.propertyAddress}</h3>
+                        <p className="text-sm text-gray-500">
+                          {formatDate(analysis.createdAt)}
+                        </p>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        {metrics.map((metric) => (
+                          <div key={metric.label} className="flex justify-between">
+                            <span className="text-sm font-medium">{metric.label}:</span>
+                            <span className="text-sm">
+                              {typeof metric.value === 'number' 
+                                ? formatCurrency(metric.value)
+                                : metric.value}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                      
+                      {analysis.notes && (
+                        <div className="text-sm">
+                          <span className="font-medium">Notes:</span> {analysis.notes}
                         </div>
-                      ))}
+                      )}
+                      
+                      {analysis.aiInsights && (
+                        <div className="text-sm">
+                          <span className="font-medium">AI Insights:</span> {analysis.aiInsights}
+                        </div>
+                      )}
                     </div>
-                    
-                    {analysis.notes && (
-                      <div className="text-sm">
-                        <span className="font-medium">Notes:</span> {analysis.notes}
-                      </div>
-                    )}
-                    
-                    {analysis.aiInsights && (
-                      <div className="text-sm">
-                        <span className="font-medium">AI Insights:</span> {analysis.aiInsights}
-                      </div>
-                    )}
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
-        </div>
-        
-        {tier === 'free' && (
-          <div className="mt-4 p-4 bg-blue-50 rounded-lg text-center">
-            <p className="text-sm text-blue-700">
-              Upgrade to Pro to compare more than 2 deals at once
-            </p>
-            <Button 
-              variant="outline" 
-              className="mt-2"
-              onClick={() => window.location.href = '/pricing'}
-            >
-              View Pricing
-            </Button>
-          </div>
-        )}
-      </DialogContent>
-    </Dialog>
+          
+          {tier === 'free' && (
+            <div className="mt-4 p-4 bg-blue-50 rounded-lg text-center">
+              <p className="text-sm text-blue-700">
+                Upgrade to Pro to compare more than 2 deals at once
+              </p>
+              <Button 
+                variant="outline" 
+                className="mt-2"
+                onClick={() => window.location.href = '/pricing'}
+              >
+                View Pricing
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </ErrorBoundary>
   );
 } 

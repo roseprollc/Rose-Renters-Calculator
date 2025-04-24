@@ -381,7 +381,7 @@ Generated: ${new Date(analysis.createdAt).toLocaleDateString()}
                   <Plus className="w-4 h-4" />
                   New Analysis
                 </button>
-                <button
+                    <button
                   onClick={() => router.push('/')}
                   className="flex items-center gap-2 px-4 py-2 border border-[#2ecc71]/20 text-[#2ecc71] rounded
                     hover:bg-[#2ecc71]/10 transition-all duration-300"

@@ -2,18 +2,23 @@
 
 import { SessionProvider } from 'next-auth/react';
 import { Toaster } from 'react-hot-toast';
-import { Analytics } from '@vercel/analytics/react';
-import { SpeedInsights } from '@vercel/speed-insights/next';
+import dynamic from 'next/dynamic';
+import { TierProvider } from '../contextEngine/tier';
+
+const Analytics = dynamic(() => import('@vercel/analytics/react').then(mod => mod.Analytics), { ssr: false });
+const SpeedInsights = dynamic(() => import('@vercel/speed-insights/next').then(mod => mod.SpeedInsights), { ssr: false });
 
 export function ClientProviders({ children }: { children: React.ReactNode }) {
   return (
     <SessionProvider>
-      <div className="min-h-screen bg-black text-[#2ecc71] antialiased">
-        {children}
-        <Toaster />
-        <Analytics />
-        <SpeedInsights />
-      </div>
+      <TierProvider>
+        <div className="min-h-screen bg-black text-[#2ecc71] antialiased">
+          {children}
+          <Toaster />
+          <Analytics />
+          <SpeedInsights />
+        </div>
+      </TierProvider>
     </SessionProvider>
   );
 } 

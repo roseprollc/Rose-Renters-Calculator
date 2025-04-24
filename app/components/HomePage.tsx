@@ -1,29 +1,13 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import { ErrorBoundary } from './ErrorBoundary';
-import { HeroSection } from './sections/HeroSection';
-import { CalculatorSection } from './sections/CalculatorSection';
-import { FeaturesSection } from './sections/FeaturesSection';
+import SafeHydrate from './utils/SafeHydrate'
 
 export default function HomePage() {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) {
-    return null;
-  }
-
   return (
-    <ErrorBoundary>
-      <div className="min-h-screen bg-black">
-        <HeroSection />
-        <CalculatorSection />
-        <FeaturesSection />
-      </div>
-    </ErrorBoundary>
-  );
+    <SafeHydrate>
+      <main className="min-h-screen flex items-center justify-center bg-black text-[#2ecc71] font-mono">
+        <h1 className="text-5xl">Hello world</h1>
+      </main>
+    </SafeHydrate>
+  )
 } 
